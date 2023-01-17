@@ -118,6 +118,7 @@
             randomizeFusionsButton = new System.Windows.Forms.Button();
             reducedSpellsAndTraps = new System.Windows.Forms.CheckBox();
             restoreOriginalFusionsButton = new System.Windows.Forms.Button();
+            this.setAllAiToDeckleaderKButton = new System.Windows.Forms.Button();
 
             this.label1 = new System.Windows.Forms.Label();
             this.cardConstantsFilterButton = new System.Windows.Forms.Button();
@@ -521,6 +522,7 @@
             // enemyAiTabSplitContainer.Panel1
             // 
             this.enemyAiTabSplitContainer.Panel1.Controls.Add(this.enemyAiSaveButton);
+            this.enemyAiTabSplitContainer.Panel1.Controls.Add(this.setAllAiToDeckleaderKButton);
             // 
             // enemyAiTabSplitContainer.Panel2
             // 
@@ -539,6 +541,15 @@
             this.enemyAiSaveButton.Text = "Save";
             this.enemyAiSaveButton.UseVisualStyleBackColor = true;
             this.enemyAiSaveButton.Click += new System.EventHandler(this.enemyAiSaveButton_Click);
+            //
+            this.setAllAiToDeckleaderKButton.Dock = System.Windows.Forms.DockStyle.Right;
+            this.setAllAiToDeckleaderKButton.Location = new System.Drawing.Point(1075, 0);
+            this.setAllAiToDeckleaderKButton.Name = "setAllAiToDeckleaderKButton";
+            this.setAllAiToDeckleaderKButton.Size = new System.Drawing.Size(150, 25);
+            this.setAllAiToDeckleaderKButton.TabIndex = 0;
+            this.setAllAiToDeckleaderKButton.Text = "Set all AI to deckleader K";
+            this.setAllAiToDeckleaderKButton.UseVisualStyleBackColor = true;
+            this.setAllAiToDeckleaderKButton.Click += new System.EventHandler(this.SetAllAiToDeckleaderK);
             // 
             // enemyAiDataGridView
             // 
@@ -2266,6 +2277,7 @@
         private Button randomizeFusionsButton;
         private CheckBox reducedSpellsAndTraps;
         private Button restoreOriginalFusionsButton;
+        private Button setAllAiToDeckleaderKButton;
 
         private Button trunkApplyFilterButton;
         private Label trunkNameFilterLabel;
