@@ -1,5 +1,7 @@
 # Dotr-deck-randomizer
-A deckrandomizer for the game Yu-Gi-Oh! Duelists of the Roses
+A deckrandomizer for the game Yu-Gi-Oh! Duelists of the Roses, made from the deckeditor created by Blayr
+
+# Good to know
 
 Originally, I only made this randomizer for my own use, so it may be a bit unintuitive for others. Below is a list of things that you may want to know as you use this randomizer:
 
