@@ -15,12 +15,13 @@ namespace DOTR_Modding_Tool
 {
     public partial class MainForm : Form
     {
-        
         private SortableBindingList<CardConstant> cards;
+
         private void SetupBannedList()
         {
             formatCardTable(banlistTrunkDataGridView);
             formatCardTable(banlistDataGridView);
+
             banlistTrunkDataGridView.DataSource = new BindingListView<CardConstant>(CardConstant.List);
 
             List<CardConstant> list = new List<CardConstant>();

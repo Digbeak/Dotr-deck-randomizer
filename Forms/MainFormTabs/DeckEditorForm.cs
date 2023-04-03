@@ -112,9 +112,9 @@ namespace DOTR_Modding_Tool
 
         private void setupDeckEditDataGridView()
         {
-            this.formatCardTable(this.trunkDataGridView);
+            //this.formatCardTable(this.trunkDataGridView);
             this.formatCardTable(this.deckEditorDataGridView);
-            this.trunkDataGridView.DataSource = trunkCardConstantBinding;
+            //this.trunkDataGridView.DataSource = trunkCardConstantBinding;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -124,40 +124,6 @@ namespace DOTR_Modding_Tool
             deckEditorDataGridView.DataSource = deckCardListBinding;
             deckEditDeckLeaderRankComboBox.SelectedValue = ((Deck)deckDropdown.SelectedItem).DeckLeader.Rank.Index;
             refreshDeckInfoLabels();
-        }
-
-        private void applyTrunkFilter()
-        {
-            string searchTerm = trunkFilterTextBox.Text.ToLower().Trim();
-
-            if (searchTerm == string.Empty)
-            {
-                trunkCardConstantBinding.RemoveFilter();
-                return;
-            }
-
-            trunkCardConstantBinding.ApplyFilter(delegate (CardConstant cardConstant) { return cardConstant.Name.ToLower().Contains(searchTerm); });
-        }
-
-        private void trunkSearchButton_Click(object sender, EventArgs e)
-        {
-            applyTrunkFilter();
-        }
-
-        private void trunkClearButton_Click(object sender, EventArgs e)
-        {
-            trunkFilterTextBox.Clear();
-            trunkCardConstantBinding.RemoveFilter();
-        }
-
-        private void trunkFilterTextbox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                applyTrunkFilter();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
         }
 
         private void deckEditDataGridView_DoubleClick(Object sender, DataGridViewCellEventArgs e)
@@ -305,10 +271,35 @@ namespace DOTR_Modding_Tool
                 saveDeck();
             }
             refreshDeckInfoLabels();
+
+            //Deck selectedsDeck = (Deck)deckDropdown.Items[27];
+            //deckCardListBinding = new SortableBindingList<DeckCard>(selectedsDeck.CardList);
+            //deckEditorDataGridView.DataSource = deckCardListBinding;
+            //deckEditDeckLeaderRankComboBox.SelectedValue = ((Deck)deckDropdown.SelectedItem).DeckLeader.Rank.Index;
+            //removeAllCards();
+            //NewDeck();
+            //deckDropdown.SelectedItem = selectedsDeck;
+            //RandomizeDeckLeader();
+            //saveDeck();
+
+            //refreshDeckInfoLabels();
+
         }
         private void averageDeckCostChanges(object sender, EventArgs e)
         {
             averageDeckCostLabel.Text = "Deck cost: " + CalculateAverageDeckCost().ToString();
+        }
+        private void minSpellsChanged(object sender, EventArgs e)
+        {
+            minSpellsSliderLabel.Text = "Minimum amount:" + minSpellsSlider.Value.ToString();
+        }
+        private void maxSpellsChanged(object sender, EventArgs e)
+        {
+            maxSpellsSliderLabel.Text = "Maximum amount:" + maxSpellsSlider.Value.ToString();
+        }
+        private void ritualschanceChanged(object sender, EventArgs e)
+        {
+            ritualchancesliderlabel.Text = ritualchanceslider.Value.ToString() + "%";
         }
         private void deckStrengthValueChanged(object sender, EventArgs e)
         {
@@ -328,8 +319,8 @@ namespace DOTR_Modding_Tool
         private void setUpThemes()
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "Themes.txt");
-            string [] lines = File.ReadAllLines(path);
-            for(int i = 0; i < lines.Length; i++)
+            string[] lines = File.ReadAllLines(path);
+            for (int i = 0; i < lines.Length; i++)
             {
                 themes.Add(new List<CardConstant>());
                 string[] ids = lines[i].Split(',');
@@ -338,7 +329,7 @@ namespace DOTR_Modding_Tool
                     int cardId = -1;
                     int.TryParse(ids[x], out cardId);
 
-                    if(cardId > -1)
+                    if (cardId > -1)
                     {
                         themes[i].Add(CardConstant.List[cardId]);
                     }
@@ -348,12 +339,12 @@ namespace DOTR_Modding_Tool
         private void LoadDefaultThemes()
         {
             themes[0] = new List<CardConstant>();
-            for(int i = 0; i < dragons.Count; i++)
+            for (int i = 0; i < dragons.Count; i++)
             {
                 themes[0].Add(dragons[i]);
             }
             themes[1] = new List<CardConstant>();
-            for (int i = 0; i <spellcasters.Count; i++)
+            for (int i = 0; i < spellcasters.Count; i++)
             {
                 themes[1].Add(spellcasters[i]);
             }
@@ -497,7 +488,20 @@ namespace DOTR_Modding_Tool
         }
         private void AddRandomDeck()
         {
-            Random rand = new Random();
+            AddRitual();
+            AddSpellsAndTraps();
+            AddRandomMonsters();
+
+        }
+        private void AddRitual()
+        {
+            if (ritualsRadioButton.Checked || (ritualsRadioButton2.Checked && rand.Next(0, 100) <= ritualchanceslider.Value))
+            {
+                AddRandomRitualToDeck();
+            }
+        }
+        private void AddRandomMonsters()
+        {
             CardConstant card;
 
             while (deckCardListBinding.Count < 40)
@@ -505,12 +509,47 @@ namespace DOTR_Modding_Tool
                 DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
                 do
                 {
-                    card = GetRandomCardFromList(rand, CardConstant.List);
-                } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index) || (IsCardNonMonster(card) && IsDeckCapedOnNonMonsters()));
+                    card = GetRandomNonbannedMonster();
+                } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index) || (IsCardNonMonster(card)));
 
                 DeckCard deckCard = new DeckCard(card, rank);
                 deckCardListBinding.Add(deckCard);
 
+                refreshDeckInfoLabels();
+            }
+        }
+        private void AddSpellsAndTraps()
+        {
+            CardConstant card;
+
+            int amountOfSpellsAndTraps = rand.Next(minSpellsSlider.Value, maxSpellsSlider.Value);
+            int maxDc = (int)(deckStrengthMultiplier * 33);
+
+            int spellscounter = 0;
+            while (spellscounter < amountOfSpellsAndTraps)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                int x = rand.Next(0, 100);
+
+                if (x < 25)
+                {
+                    do
+                    {
+                        card = GetRandomPowerup(maxDc);
+                    } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index));
+                }
+                else
+                {
+                    do
+                    {
+                        card = GetRandomNonPowerupSpellOrTrap(maxDc);
+                    } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index));
+                }
+
+                DeckCard deckCard = new DeckCard(card, rank);
+                deckCardListBinding.Add(deckCard);
+
+                spellscounter++;
                 refreshDeckInfoLabels();
             }
         }
@@ -525,7 +564,7 @@ namespace DOTR_Modding_Tool
                 DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
                 do
                 {
-                    card = GetRandomCardFromList(rand, monsterList);
+                    card = GetRandomCardFromList(monsterList);
                 } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index) || (IsCardNonMonster(card) && IsDeckCapedOnNonMonsters()));
 
                 DeckCard deckCard = new DeckCard(card, rank);
@@ -539,7 +578,7 @@ namespace DOTR_Modding_Tool
                 DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
                 do
                 {
-                    card = GetRandomCardFromList(rand, CardConstant.List);
+                    card = GetRandomCardFromList(CardConstant.List);
                 } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index) || (IsCardNonMonster(card) && IsDeckCapedOnNonMonsters()));
 
                 DeckCard deckCard = new DeckCard(card, rank);
@@ -562,10 +601,10 @@ namespace DOTR_Modding_Tool
             {
                 do
                 {
-                    card = GetRandomWheightedCard(random, deckCost - GetDeckCost(), CardConstant.List, random.Next(0, 15));
+                    card = GetRandomWheightedCard(deckCost - GetDeckCost(), CardConstant.List, random.Next(0, 15));
                     if (card.Kind.Id == 64 || IsCardMassPowerup(card.Index))
                     {
-                        card = GetRandomWheightedCard(random, deckCost - GetDeckCost(), CardConstant.List, random.Next(0, 15));
+                        card = GetRandomWheightedCard(deckCost - GetDeckCost(), CardConstant.List, random.Next(0, 15));
                     }
                 } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index) || (IsCardNonMonster(card) && IsDeckCapedOnNonMonsters()));
 
@@ -661,6 +700,2230 @@ namespace DOTR_Modding_Tool
                 refreshDeckInfoLabels();
             }
         }
+        private void randomizeEnemyDecks(object sender, EventArgs e)
+        {
+            for (int i = 27; i < 48; i++)
+            {
+                Deck selectedDeck = (Deck)deckDropdown.Items[i];
+                deckCardListBinding = new SortableBindingList<DeckCard>(selectedDeck.CardList);
+                deckEditorDataGridView.DataSource = deckCardListBinding;
+                deckEditDeckLeaderRankComboBox.SelectedValue = ((Deck)deckDropdown.SelectedItem).DeckLeader.Rank.Index;
+                removeAllCards();
+                AddEnemyDeck(i);
+                deckDropdown.SelectedItem = selectedDeck;
+                saveDeck();
+            }
+            refreshDeckInfoLabels();
+
+
+            //      { 27, "Seto" },
+            //{ 28, "Weevil Underwood" },
+            //{ 29, "Rex Raptor" },
+            //{ 30, "Keith" },
+            //{ 31, "Ishtar" },
+            //{ 32, "Necromancer" },
+            //{ 33, "Darkness-ruler" },
+            //{ 34, "Labyrinth-ruler" },
+            //{ 35, "Pegasus Crawford" },
+            //{ 36, "Richard Slysheen of York" },
+            //{ 37, "Tea" },
+            //{ 38, "T. Tristan Grey" },
+            //{ 39, "Margaret Mai Beaufort" },
+            //{ 40, "Mako" },
+            //{ 41, "Joey" },
+            //{ 42, "J. Shadi Morton" },
+            //{ 43, "Jasper Dice Tudor" },
+            //{ 44, "Bakura" },
+            //{ 45, "Yugi" },
+            //{ 46, "Manawyddan fab Llyr (vs White Rose)" },
+            //{ 47, "Manawyddan fab Llyr (vs Red Rose)" },
+        }
+        private void AddEnemyDeck(int enemy)
+        {
+            switch (enemy)
+            {
+                case 27:
+                    AddSetoDeck();
+                    break;
+                case 28:
+                    AddWeevilDeck();
+                    break;
+                case 29:
+                    AddRexDeck();
+                    break;
+                case 30:
+                    AddKeithDeck();
+                    break;
+                case 31:
+                    AddIshtarDeck();
+                    break;
+                case 32:
+                    AddNecromancerDeck();
+                    break;
+                case 33:
+                    AddDarknessrulerDeck();
+                    break;
+                case 34:
+                    AddLabyrinthrulerDeck();
+                    break;
+                case 35:
+                    AddPegasusDeck();
+                    break;
+                case 36:
+                    AddRichardDeck();
+                    break;
+                case 37:
+                    AddTeaDeck();
+                    break;
+                case 38:
+                    AddTristanDeck();
+                    break;
+                case 39:
+                    AddMaiDeck();
+                    break;
+                case 40:
+                    AddMakoDeck();
+                    break;
+                case 41:
+                    AddJoeyDeck();
+                    break;
+                case 42:
+                    AddShadiDeck();
+                    break;
+                case 43:
+                    AddGrandpaDeck();
+                    break;
+                case 44:
+                    AddBakuraDeck();
+                    break;
+                case 45:
+                    AddYugiDeck();
+                    break;
+                case 46:
+                    AddManawyddanWhite();
+                    break;
+                case 47:
+                    AddManawyddanRed();
+                    break;
+            }
+
+        }
+        private void AddSetoDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                0,
+                0,
+                0,
+                83,
+                146,
+                154,
+                211,
+                233,
+                685,
+                766,
+                766,
+                837
+            };
+
+            List<int> extracards = new List<int>()
+            {
+                59,
+                84,
+                136,
+                137,
+                172,
+                178,
+                191,
+                205,
+                209,
+                215,
+                219,
+                228,
+                339,
+                340,
+                360,
+                361,
+                522,
+                527,
+                535,
+                545,
+                708,
+                722,
+                726,
+                743,
+                752,
+                755,
+                778,
+                780,
+                780,
+                780,
+                781,
+                793,
+                796,
+                802,
+                802,
+                803,
+                805,
+                806,
+                809,
+                810,
+                813,
+                821,
+                823,
+                825,
+                828
+            };
+
+            List<CardConstant> dragons = GetListOfMonstersWithAttackXOrMore(1500, GetListOfMonstersWithAttackXOrLess(3000, GetListOfMonstersOfType(0)));
+
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            foreach (CardConstant card in dragons)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+
+            }
+            foreach (int cardid in extracards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+
+
+            }
+
+            refreshDeckInfoLabels();
+        }
+        private void AddWeevilDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                401,
+                419,
+                756,
+                757,
+                798,
+                848
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                689,
+                703,
+                705,
+                716,
+                756,
+                756,
+                757,
+                757,
+                773,
+                798,
+                804,
+                805,
+                808,
+                809,
+                817,
+                828
+            };
+
+            List<CardConstant> insects = GetListOfMonstersWithAttackXOrLess(2300, GetListOfMonstersOfType(9));
+
+            foreach (CardConstant card in insects)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddRexDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                775,
+                775
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                446,
+                446,
+                451,
+                451,
+                453,
+                453,
+                690,
+                704,
+                704,
+                709,
+                709,
+                721,
+                722,
+                724,
+                725,
+                741,
+                741,
+                773,
+                773,
+                775,
+                775,
+                807,
+                807,
+                809,
+                809,
+                813,
+                822
+            };
+
+            List<CardConstant> dinosaurs = GetListOfMonstersOfType(10);
+
+            foreach (CardConstant card in dinosaurs)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddKeithDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                342,
+                505,
+                738,
+                774,
+                774,
+                774,
+                787,
+                787,
+                799
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                810,
+                814,
+                815,
+                823
+            };
+
+            List<CardConstant> machines = GetListOfMonstersWithAttackXOrLess(2600, GetListOfMonstersOfType(14));
+
+            foreach (CardConstant card in machines)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddIshtarDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                476,
+                584,
+                593,
+                742,
+                777,
+                777,
+                783,
+                783,
+                829,
+                844,
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                5,
+                22,
+                29,
+                84,
+                92,
+                100,
+                476,
+                477,
+                478,
+                479,
+                480,
+                535,
+                539,
+                541,
+                543,
+                546,
+                547,
+                549,
+                552,
+                558,
+                584,
+                598,
+                592,
+                634,
+                684,
+                693,
+                699,
+                705,
+                706,
+                727,
+                730,
+                760,
+                751,
+                777,
+                796,
+                801,
+                803,
+                804,
+                809,
+                811,
+                818,
+                823
+            };
+
+            List<CardConstant> aquas = GetListOfMonstersWithAttackXOrLess(2100, GetListOfMonstersOfType(16));
+            List<CardConstant> fishes = GetListOfMonstersWithAttackXOrLess(1700, GetListOfMonstersOfType(12));
+
+            foreach (CardConstant card in aquas)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fishes)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddNecromancerDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                108,
+                119,
+                119,
+                412,
+                495,
+                754,
+                754,
+                772,
+                772,
+                851
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                404,
+                411,
+                412,
+                420,
+                490,
+                493,
+                495,
+                685,
+                690,
+                694,
+                699,
+                745,
+                754,
+                772,
+                808,
+                821,
+                823
+            };
+
+            List<CardConstant> zombies = GetListOfMonstersWithAttackXOrLess(2300, GetListOfMonstersOfType(2));
+
+            foreach (CardConstant card in zombies)
+            {
+                possibleCards.Add(card);
+                possibleCards.Add(card);
+            }
+            foreach (int cardid in extraCards)
+            {
+                possibleCards.Add(CardConstant.List[cardid]);
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddDarknessrulerDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                300,
+                300,
+                754,
+                770,
+                782,
+                782,
+                834
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                684,
+                746,
+                749,
+                754,
+                770,
+                782,
+                795,
+                817,
+                818,
+                819,
+                823,
+                828
+            };
+
+            List<CardConstant> fiends = GetListOfMonstersWithAttackXOrLess(2400, GetListOfMonstersOfType(7));
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 0);
+
+            foreach (CardConstant card in fiends)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddLabyrinthrulerDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                99,
+                123,
+                123,
+                409,
+                486,
+                534,
+                573,
+                697,
+                832
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                13,
+                21,
+                37,
+                67,
+                88,
+                99,
+                111,
+                123,
+                123,
+                140,
+                142,
+                144,
+                156,
+                158,
+                162,
+                162,
+                164,
+                169,
+                172,
+                174,
+                182,
+                190,
+                237,
+                240,
+                288,
+                297,
+                325,
+                349,
+                371,
+                382,
+                402,
+                408,
+                408,
+                409,
+                409,
+                409,
+                413,
+                417,
+                422,
+                425,
+                426,
+                429,
+                445,
+                495,
+                503,
+                513,
+                527,
+                528,
+                534,
+                536,
+                567,
+                573,
+                644,
+                652,
+                661,
+                663,
+                668,
+                681,
+                697,
+                698,
+                700,
+                701,
+                705,
+                706,
+                711,
+                712,
+                716,
+                723,
+                729,
+                734,
+                734,
+                736,
+                746,
+                750,
+                756,
+                757,
+                780,
+                780,
+                784,
+                796
+            };
+
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(40, 0);
+            List<CardConstant> fulltraps = GetListOfRandomLimitedRangeTrap(50, 0);
+
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fulltraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddPegasusDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                16,
+                17,
+                29,
+                41,
+                188,
+                225,
+                270,
+                341,
+                362,
+                454,
+                611,
+                695,
+                713,
+                713,
+                713,
+                781,
+                781,
+                782,
+                782
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                16,
+                17,
+                29,
+                37,
+                41,
+                59,
+                61,
+                146,
+                148,
+                188,
+                188,
+                225,
+                225,
+                270,
+                270,
+                341,
+                362,
+                454,
+                452,
+                611,
+                611,
+                613,
+                683,
+                687,
+                688,
+                695,
+                700,
+                715,
+                732,
+                733,
+                734,
+                780,
+                781,
+                782,
+                801,
+                802,
+                803,
+                804,
+                810,
+                812,
+                813,
+                815,
+                823,
+                830
+            };
+
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddRichardDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                752,
+                752,
+                753,
+                755,
+                755,
+                778,
+                778,
+                796
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                140,
+                163,
+                175,
+                191,
+                674,
+                692,
+                702,
+                705,
+                706,
+                752,
+                753,
+                773,
+                778,
+                791,
+                796,
+                820,
+                823,
+                824,
+                827
+            };
+
+            List<CardConstant> warriors = GetListOfMonstersWithAttackXOrLess(2700, GetListOfMonstersWithAttackXOrMore(1200, GetListOfMonstersOfType(3)));
+            List<CardConstant> beastwarriors = GetListOfMonstersWithAttackXOrMore(1700, GetListOfMonstersOfType(4));
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 15);
+
+            foreach (CardConstant card in warriors)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in beastwarriors)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                possibleCards.Add(CardConstant.List[cardid]);
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddTeaDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                706,
+                735,
+                763,
+                763
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                35,
+                691,
+                703,
+                704,
+                705,
+                706,
+                716,
+                735,
+                751,
+                758,
+                763,
+                767,
+                768,
+                781,
+                792,
+                804,
+                808,
+                809
+            };
+
+            List<CardConstant> fairies = GetListOfMonstersOfType(8);
+
+            foreach (CardConstant card in fairies)
+            {
+                if (!IsCardBanned(card.Index) && card.Index != 371)
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddTristanDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                310,
+                325,
+                330,
+                330,
+                846
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                317,
+                329,
+                330,
+                323,
+                440,
+                731,
+                750,
+                751
+            };
+
+            List<CardConstant> monsters = GetListOfMonstersWithAttackXOrLess(2000, GetListOfMonstersWithAttackXOrMore(1300, CardConstant.Monsters));
+
+            foreach (CardConstant card in monsters)
+            {
+                if (!IsCardBanned(card.Index) && card.Kind.Id != 20)
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddMaiDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                8,
+                8,
+                30,
+                187,
+                272,
+                272,
+                272,
+                767,
+                768,
+                768,
+                776,
+                776,
+                785,
+                785,
+                797,
+                797,
+                843
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                8,
+                22,
+                30,
+                31,
+                33,
+                195,
+                199,
+                204,
+                685,
+                691,
+                702,
+                704,
+                712,
+                740,
+                743,
+                767,
+                768,
+                776,
+                785,
+                795,
+                796,
+                797,
+                816,
+                818,
+                822,
+                828,
+            };
+
+            List<CardConstant> wingedbeasts = GetListOfMonstersOfType(6);
+            List<CardConstant> traps = GetListOfRandomLimitedRangeTrap(20, 10);
+
+            foreach (CardConstant card in wingedbeasts)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in traps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddMakoDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                476,
+                479,
+                532,
+                777,
+                777,
+                783,
+                783,
+                852,
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                532,
+                693,
+                701,
+                703,
+                705,
+                711,
+                713,
+                742,
+                747,
+                777,
+                783,
+                784,
+                804,
+                805,
+                807,
+                809,
+                810,
+                819,
+                820,
+                828
+            };
+
+            List<CardConstant> aquas = GetListOfMonstersWithAttackXOrLess(2400, GetListOfMonstersOfType(16));
+            List<CardConstant> fishes = GetListOfMonstersWithAttackXOrLess(2200, GetListOfMonstersOfType(12));
+            List<CardConstant> seaserpents = GetListOfMonstersOfType(13);
+
+            foreach (CardConstant card in aquas)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fishes)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in seaserpents)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddJoeyDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                7,
+                21,
+                36,
+                752,
+                752,
+                755,
+                755,
+                778,
+                778,
+                779,
+                788,
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                1,
+                4,
+                7,
+                11,
+                16,
+                21,
+                24,
+                26,
+                34,
+                77,
+                94,
+                103,
+                245,
+                261,
+                264,
+                485,
+                491,
+                497,
+                529,
+                614,
+                615,
+                616,
+                618,
+                686,
+                687,
+                701,
+                704,
+                708,
+                711,
+                712,
+                727,
+                729,
+                734,
+                736,
+                750,
+                752,
+                752,
+                755,
+                755,
+                766,
+                778,
+                779,
+                780,
+                792,
+                799,
+                801,
+                804,
+                804,
+                805,
+                809,
+                810,
+                811,
+                818,
+                823,
+                824
+            };
+
+            List<CardConstant> warriors = GetListOfMonstersWithAttackXOrMore(800, GetListOfMonstersWithAttackXOrLess(2600, GetListOfMonstersOfType(3)));
+            List<CardConstant> beastwarriors = GetListOfMonstersWithAttackXOrLess(2100, GetListOfMonstersOfType(4));
+
+            foreach (CardConstant card in warriors)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in beastwarriors)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddShadiDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                770,
+                784,
+                784,
+                784,
+                786,
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                47,
+                72,
+                89,
+                274,
+                292,
+                333,
+                338,
+                342,
+                343,
+                345,
+                349,
+                352,
+                364,
+                367,
+                489,
+                498,
+                712,
+                713,
+                770,
+                773,
+                780,
+                781,
+                782,
+                782,
+                786,
+                796,
+                801,
+                802,
+                803,
+                804,
+                810,
+                810,
+                811,
+                814,
+                828
+            };
+
+            List<CardConstant> thunders = GetListOfMonstersWithAttackXOrLess(3000, GetListOfMonstersOfType(15));
+            List<CardConstant> pyros = GetListOfMonstersWithAttackXOrLess(3000, GetListOfMonstersOfType(17));
+            List<CardConstant> rocks = GetListOfMonstersWithAttackXOrLess(3000, GetListOfMonstersOfType(18));
+
+            foreach (CardConstant card in thunders)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in pyros)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in rocks)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddGrandpaDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                711,
+                712,
+                713,
+                714,
+                762,
+                762,
+                762,
+                771,
+                771,
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                486,
+                684,
+                687,
+                688,
+                694,
+                699,
+                700,
+                702,
+                705,
+                707,
+                711,
+                712,
+                713,
+                713,
+                714,
+                714,
+                715,
+                731,
+                737,
+                747,
+                749,
+                771,
+                780,
+            };
+
+            List<CardConstant> spellcasters = GetListOfMonstersWithAttackXOrLess(3000, GetListOfMonstersOfType(1));
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 15);
+            List<CardConstant> fullrangetraps = GetListOfRandomFullRangeTrap(80, 10);
+
+            foreach (CardConstant card in spellcasters)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fullrangetraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddBakuraDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                739,
+                759,
+                761,
+                761,
+                761,
+                769
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                228,
+                230,
+                231,
+                238,
+                245,
+                248,
+                251,
+                292,
+                305,
+                317,
+                318,
+                329,
+                336,
+                670,
+                668,
+                673,
+                679,
+                681,
+                684,
+                706,
+                713,
+                732,
+                734,
+                739,
+                759,
+                769,
+                773,
+                793,
+                794,
+                823,
+                827
+            };
+
+            List<CardConstant> plants = GetListOfMonstersWithAttackXOrLess(1400, GetListOfMonstersOfType(19));
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 15);
+
+            foreach (CardConstant card in plants)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                possibleCards.Add(CardConstant.List[cardid]);
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddYugiDeck()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                60,
+                87,
+                754,
+                762
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                4,
+                5,
+                6,
+                7,
+                23,
+                43,
+                60,
+                76,
+                78,
+                87,
+                92,
+                143,
+                155,
+                212,
+                294,
+                417,
+                459,
+                535,
+                540,
+                626,
+                634,
+                675,
+                685,
+                686,
+                687,
+                696,
+                699,
+                700,
+                701,
+                702,
+                706,
+                707,
+                714,
+                715,
+                732,
+                734,
+                736,
+                750,
+                751,
+                754,
+                762,
+                771,
+                780,
+                780,
+                796,
+            };
+
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 10);
+            List<CardConstant> fullrangetraps = GetListOfRandomFullRangeTrap(99, 20);
+
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fullrangetraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 25)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = CardConstant.List[rand.Next(0, CardConstant.List.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3 && cardToAdd.Kind.Id != 160);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddManawyddanWhite()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                75,
+                713,
+                713,
+                714,
+                714,
+                789
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                22,
+                44,
+                75,
+                111,
+                115,
+                146,
+                154,
+                155,
+                172,
+                183,
+                224,
+                293,
+                308,
+                312,
+                366,
+                672,
+                694,
+                677,
+                684,
+                685,
+                686,
+                687,
+                688,
+                699,
+                700,
+                701,
+                702,
+                707,
+                713,
+                714,
+                715,
+                732,
+                733,
+                734,
+                748,
+                780,
+                789,
+                789,
+                794,
+                795,
+                796
+            };
+
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 30);
+            List<CardConstant> fullrangetraps = GetListOfRandomFullRangeTrap(99, 30);
+
+            List<CardConstant> monsters = GetListOfMonstersWithAttackXOrLess(3200, GetListOfMonstersWithAttackXOrMore(2500, CardConstant.Monsters));
+
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fullrangetraps)
+            {
+                if (!IsCardBanned(card.Index) && card.Index != 825)
+                {
+                    possibleCards.Add(card);
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in monsters)
+            {
+                if (!IsCardBanned(card.Index) && card.Kind.Id != 20)
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddManawyddanRed()
+        {
+            List<CardConstant> possibleCards = new List<CardConstant>();
+
+            List<int> guaranteedCards = new List<int>()
+            {
+                224,
+                364,
+                748,
+                780,
+                780,
+                780,
+                789
+            };
+
+            List<int> extraCards = new List<int>()
+            {
+                111,
+                146,
+                149,
+                224,
+                224,
+                364,
+                682,
+                684,
+                685,
+                687,
+                688,
+                699,
+                700,
+                701,
+                702,
+                707,
+                713,
+                714,
+                715,
+                732,
+                733,
+                734,
+                748,
+                789,
+                789,
+                795,
+                796
+            };
+
+            List<CardConstant> limitedtraps = GetListOfRandomLimitedRangeTrap(60, 30);
+            List<CardConstant> fullrangetraps = GetListOfRandomFullRangeTrap(99, 30);
+
+            List<CardConstant> monsters = GetListOfMonstersWithAttackXOrLess(5200, GetListOfMonstersWithAttackXOrMore(2500, CardConstant.Monsters));
+
+            foreach (CardConstant card in limitedtraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in fullrangetraps)
+            {
+                if (!IsCardBanned(card.Index))
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (CardConstant card in monsters)
+            {
+                if (!IsCardBanned(card.Index) && card.Kind.Id != 20)
+                {
+                    possibleCards.Add(card);
+                }
+            }
+            foreach (int cardid in extraCards)
+            {
+                if (!IsCardBanned(cardid))
+                {
+                    possibleCards.Add(CardConstant.List[cardid]);
+                    possibleCards.Add(CardConstant.List[cardid]);
+                }
+            }
+            foreach (int guaranteedCard in guaranteedCards)
+            {
+                if (!IsCardBanned(guaranteedCard) && GetAmountOfCardDuplicatesInDeck(guaranteedCard) <= 3)
+                {
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    CardConstant card = CardConstant.List[guaranteedCard];
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant cardToAdd;
+                do
+                {
+                    cardToAdd = possibleCards[rand.Next(0, possibleCards.Count)];
+                } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
+
+                DeckCard deckCard = new DeckCard(cardToAdd, rank);
+                deckCardListBinding.Add(deckCard);
+            }
+            refreshDeckInfoLabels();
+        }
+        private void AddEnemyDeck(List<int> guaranteedcards, List<int> cardkindids, List<int> extracardids)
+        {
+            for (int i = 0; i < guaranteedcards.Count; i++)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+
+                CardConstant card = CardConstant.List[guaranteedcards[i]];
+
+                if (!(GetAmountOfCardDuplicatesInDeck(card.Index) >= 3) && !IsCardBanned(card.Index))
+                {
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+                }
+            }
+            List<CardConstant> possibleCardList = new List<CardConstant>();
+
+            for (int i = 0; i < CardConstant.List.Count; i++)
+            {
+                foreach (int id in cardkindids)
+                {
+                    if (CardConstant.List[i].Kind.Id == id)
+                    {
+                        possibleCardList.Add(CardConstant.List[i]);
+                    }
+                }
+                foreach (int id in extracardids)
+                {
+                    possibleCardList.Add(CardConstant.List[id]);
+                }
+            }
+
+            while (deckCardListBinding.Count < 40)
+            {
+                DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                CardConstant card;
+                do
+                {
+                    card = GetRandomCardFromList(possibleCardList);
+                } while (GetAmountOfCardDuplicatesInDeck(card.Index) >= 3 || IsCardBanned(card.Index));
+
+                DeckCard deckCard = new DeckCard(card, rank);
+                deckCardListBinding.Add(deckCard);
+
+                refreshDeckInfoLabels();
+            }
+
+            //add guaranteed cards
+            //slå samman kort av vald typ och extra kort
+        }
         private int GetDeckCost()
         {
             int points = 0;
@@ -713,7 +2976,7 @@ namespace DOTR_Modding_Tool
                         CardConstant cardToAdd;
                         do
                         {
-                            cardToAdd = GetRandomCardAtOrOverXDefence(2000);
+                            cardToAdd = GetRandomCardAtOrOverXDefence(2000, CardConstant.Monsters);
                         } while (GetAmountOfCardDuplicatesInDeck(cardToAdd.Index) >= 3);
                         cards.Add(cardToAdd);
                     }
@@ -732,8 +2995,8 @@ namespace DOTR_Modding_Tool
                     break;
                 case 833:
                     cards.Add(CardConstant.List[833]);
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1500));
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1500));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1500, CardConstant.Monsters));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1500, CardConstant.Monsters));
                     cards.Add(CardConstant.List[155]);
                     break;
                 case 834:
@@ -810,8 +3073,8 @@ namespace DOTR_Modding_Tool
                     break;
                 case 846:
                     cards.Add(CardConstant.List[846]);
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1000));
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1000));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1000, CardConstant.Monsters));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1000, CardConstant.Monsters));
                     cards.Add(CardConstant.List[330]);
                     break;
                 case 847:
@@ -852,8 +3115,8 @@ namespace DOTR_Modding_Tool
                     break;
                 case 853:
                     cards.Add(CardConstant.List[853]);
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1500));
-                    cards.Add(GetRandomCardAtOrBelowXAttack(1500));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1500, CardConstant.Monsters));
+                    cards.Add(GetRandomCardAtOrBelowXAttack(1500, CardConstant.Monsters));
                     cards.Add(CardConstant.List[60]);
                     break;
             }
@@ -905,7 +3168,7 @@ namespace DOTR_Modding_Tool
             {
                 card = CardConstant.Monsters[rand.Next(0, CardConstant.Monsters.Count)];
             }
-            while (IsCardBanned(card.Index));
+            while (IsCardBanned(card.Index) || card.DeckCost > deckStrengthMultiplier * 33);
             return card;
         }
         private CardConstant GetRandomCardOfType(int typeId, int maxAttack = 1500, int maxDc = 30, int minDc = 0)
@@ -918,29 +3181,43 @@ namespace DOTR_Modding_Tool
             while (card.Kind.Id != typeId || card.Attack > maxAttack || card.DeckCost > maxDc || card.DeckCost < minDc);
             return card;
         }
-        private CardConstant GetRandomCardAtOrBelowXAttack(int maxAttack)
+        private CardConstant GetRandomCardAtOrBelowXAttack(int maxAttack, List<CardConstant> list)
         {
             CardConstant card = null;
             List<CardConstant> cardsBelowXAtk = new List<CardConstant>();
 
-            for (int i = 0; i < CardConstant.Monsters.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
-                if (CardConstant.Monsters[i].Attack <= maxAttack)
-                    cardsBelowXAtk.Add(CardConstant.Monsters[i]);
+                if (list[i].Attack <= maxAttack && !IsCardBanned(i))
+                    cardsBelowXAtk.Add(list[i]);
             }
 
             card = cardsBelowXAtk[rand.Next(0, cardsBelowXAtk.Count)];
             return card;
         }
-        private CardConstant GetRandomCardAtOrOverXDefence(int minDefence)
+        private CardConstant GetRandomCardAtOrAboveXAttack(int minAttack, List<CardConstant> list)
+        {
+            CardConstant card = null;
+            List<CardConstant> cardsAtOrAboveXAtk = new List<CardConstant>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Attack >= minAttack && !IsCardBanned(i))
+                    cardsAtOrAboveXAtk.Add(list[i]);
+            }
+
+            card = cardsAtOrAboveXAtk[rand.Next(0, cardsAtOrAboveXAtk.Count)];
+            return card;
+        }
+        private CardConstant GetRandomCardAtOrOverXDefence(int minDefence, List<CardConstant> list)
         {
             CardConstant card = null;
             List<CardConstant> cardsWithXDef = new List<CardConstant>();
 
-            for (int i = 0; i < CardConstant.Monsters.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
-                if (CardConstant.Monsters[i].Defense >= minDefence)
-                    cardsWithXDef.Add(CardConstant.Monsters[i]);
+                if (list[i].Defense >= minDefence && !IsCardBanned(i))
+                    cardsWithXDef.Add(list[i]);
             }
 
             card = cardsWithXDef[rand.Next(0, cardsWithXDef.Count)];
@@ -970,6 +3247,36 @@ namespace DOTR_Modding_Tool
             } while (card.Index == 671);
 
             return card;
+        }
+        private CardConstant GetRandomLimitedRangeTrap(int maxdc)
+        {
+            CardConstant returncard;
+            List<CardConstant> traps = new List<CardConstant>();
+
+            foreach (CardConstant card in CardConstant.List)
+            {
+                if (card.Kind.Id == 96 && card.DeckCost <= maxdc)
+                {
+                    traps.Add(card);
+                }
+            }
+            returncard = traps[rand.Next(0, traps.Count())];
+            return returncard;
+        }
+        private CardConstant GetRandomFullRangeTrap(int maxdc)
+        {
+            CardConstant returncard;
+            List<CardConstant> traps = new List<CardConstant>();
+
+            foreach (CardConstant card in CardConstant.List)
+            {
+                if (card.Kind.Id == 128 && card.DeckCost <= maxdc)
+                {
+                    traps.Add(card);
+                }
+            }
+            returncard = traps[rand.Next(0, traps.Count())];
+            return returncard;
         }
         private bool IsCardMassPowerup(int cardId)
         {
@@ -1034,7 +3341,7 @@ namespace DOTR_Modding_Tool
             //    return new CardParameters((int)(2800 * deckStrengthMultiplier),(int)(2100 * deckStrengthMultiplier), (int)(70 * deckStrengthMultiplier),(int)( 35 * deckStrengthMultiplier));
             //}
         }
-        private CardConstant GetRandomWheightedCard(Random rand, int remaingingDc, List<CardConstant> cardlist, int maximumAllowedExtraCost = 0)
+        private CardConstant GetRandomWheightedCard(int remaingingDc, List<CardConstant> cardlist, int maximumAllowedExtraCost = 0)
         {
             int maxCardDc = Math.Max((remaingingDc / (40 - deckCardListBinding.Count)) + maximumAllowedExtraCost, 10);
 
@@ -1075,7 +3382,7 @@ namespace DOTR_Modding_Tool
             }
             return cards;
         }
-        private CardConstant GetRandomCardFromList(Random rand, List<CardConstant> cardList)
+        private CardConstant GetRandomCardFromList(List<CardConstant> cardList)
         {
             bool cardFound = false;
             CardConstant cardConstant = cardList[0];
@@ -1177,9 +3484,83 @@ namespace DOTR_Modding_Tool
                     return dragons;
             }
         }
+        private List<CardConstant> GetListOfMonstersWithAttackXOrMore(int minAttack, List<CardConstant> list)
+        {
+            List<CardConstant> monsters = new List<CardConstant>();
+            foreach (CardConstant card in list)
+            {
+                if (card.Attack >= minAttack && !IsCardBanned(card.Index))
+                {
+                    monsters.Add(card);
+                }
+            }
+            return monsters;
+        }
+        private List<CardConstant> GetListOfMonstersWithAttackXOrLess(int maxAttack, List<CardConstant> list)
+        {
+            List<CardConstant> monsters = new List<CardConstant>();
+            foreach (CardConstant card in list)
+            {
+                if (card.Attack <= maxAttack && !IsCardBanned(card.Index))
+                {
+                    monsters.Add(card);
+                }
+            }
+            return monsters;
+        }
+        private List<CardConstant> GetListOfMonstersWithDefenceXOrMore(int minDefence, List<CardConstant> list)
+        {
+            List<CardConstant> monsters = new List<CardConstant>();
+            foreach (CardConstant card in list)
+            {
+                if (card.Defense >= minDefence && !IsCardBanned(card.Index))
+                {
+                    monsters.Add(card);
+                }
+            }
+            return monsters;
+        }
+        private List<CardConstant> GetListOfMonstersWithDefenceXOrless(int maxDefence, List<CardConstant> list)
+        {
+            List<CardConstant> monsters = new List<CardConstant>();
+            foreach (CardConstant card in list)
+            {
+                if (card.Defense <= maxDefence && !IsCardBanned(card.Index))
+                {
+                    monsters.Add(card);
+                }
+            }
+            return monsters;
+        }
+        private List<CardConstant> GetListOfRandomLimitedRangeTrap(int maxdc, int mindc)
+        {
+            List<CardConstant> traps = new List<CardConstant>();
+
+            foreach (CardConstant card in CardConstant.List)
+            {
+                if (card.Kind.Id == 96 && card.DeckCost <= maxdc && card.DeckCost >= mindc)
+                {
+                    traps.Add(card);
+                }
+            }
+            return traps;
+        }
+        private List<CardConstant> GetListOfRandomFullRangeTrap(int maxdc, int mindc)
+        {
+            List<CardConstant> traps = new List<CardConstant>();
+
+            foreach (CardConstant card in CardConstant.List)
+            {
+                if (card.Kind.Id == 128 && card.DeckCost <= maxdc && card.DeckCost >= mindc)
+                {
+                    traps.Add(card);
+                }
+            }
+            return traps;
+        }
         private bool IsCardBanned(int cardId)
         {
-            if (bannedCardIds.Contains(cardId))
+            if (bannedCardIds.Contains(cardId) || CardConstant.List[cardId].Kind.Id == 20)
             {
                 return true;
             }
@@ -1188,6 +3569,14 @@ namespace DOTR_Modding_Tool
         private bool IsCardNonMonster(CardConstant card)
         {
             if (card.CardColor == CardColorType.Magic || card.CardColor == CardColorType.Trap || card.CardColor == CardColorType.Ritual)
+            {
+                return true;
+            }
+            return false;
+        }
+        private bool IsCardFieldSpell(CardConstant card)
+        {
+            if (card.Index >= 689 && card.Index <= 696)
             {
                 return true;
             }
@@ -1297,6 +3686,98 @@ namespace DOTR_Modding_Tool
         private float CalculateDeckStrengthMultiplier()
         {
             return (deckStrengthMultiplierTrackBar.Value * 0.1f + 0.5f);
+        }
+        private void RestoreDefaultEnemyDecks(object sender, EventArgs e)
+        {
+            var path = "";
+            //path = @"../../DefaultEnemyDecks.txt";
+            path = Path.Combine(Directory.GetCurrentDirectory(), "DefaultEnemyDecks.txt");
+
+            string[] lines = File.ReadAllLines(path);
+
+            int counter = 0;
+            for (int i = 27; i < 47; i++)
+            {
+
+                Deck selectedDeck = (Deck)deckDropdown.Items[i];
+                deckCardListBinding = new SortableBindingList<DeckCard>(selectedDeck.CardList);
+                deckEditorDataGridView.DataSource = deckCardListBinding;
+                deckEditDeckLeaderRankComboBox.SelectedValue = ((Deck)deckDropdown.SelectedItem).DeckLeader.Rank.Index;
+                removeAllCards();
+
+                for (int x = 0; x < 40; x++)
+                {
+                    int cardid = int.Parse(lines[counter]);
+                    CardConstant card = CardConstant.List[cardid];
+
+                    DeckLeaderRank rank = new DeckLeaderRank((int)DeckLeaderRankType.NCO);
+                    DeckCard deckCard = new DeckCard(card, rank);
+                    deckCardListBinding.Add(deckCard);
+
+                    counter++;
+                }
+
+                deckDropdown.SelectedItem = selectedDeck;
+                saveDeck();
+                refreshDeckInfoLabels();
+            }
+
+
+        }
+        private void SaveDefaultEnemyDecks()
+        {
+            var path = "";
+            //path = @"../../DefaultEnemyDecks.txt";
+            path = Path.Combine(Directory.GetCurrentDirectory(), "DefaultEnemyDecks.txt");
+
+            List<string> originalenemydeckslist = new List<string>();
+
+            for (int i = 27; i < 47; i++)
+            {
+                Deck deck = (Deck)deckDropdown.Items[i];
+                for (int x = 0; x < 40; x++)
+                {
+                    originalenemydeckslist.Add(deck.CardList[x].CardConstant.Index.ToString());
+                }
+            }
+
+            string[] lines = originalenemydeckslist.ToArray();
+            File.WriteAllLines(path, lines);
+
+
+
+            //            var path = "";
+            //#if DEBUG
+            //            path = @"../../Banlist.txt";
+
+            //#else
+            //            path = Path.Combine(Directory.GetCurrentDirectory(), "Banlist.txt");
+            //#endif
+            //            Console.WriteLine(path);
+            //            List<string> l = bannedCardIds.Select(x => x.ToString()).ToList();
+            //            string[] lines = l.ToArray();
+            //#if DEBUG
+            //            File.WriteAllLines(@"../../Banlist.txt", lines);
+            //#else
+            //            File.WriteAllLines(path, lines);
+            //#endif
+            //            ////////////////////////////////////
+            //            var path = "";
+            //#if DEBUG
+            //            path = @"../../OriginalFusions.txt";
+
+            //#else
+            //            path = Path.Combine(Directory.GetCurrentDirectory(), "OriginalFusions.txt");
+            //#endif
+            //            string[] lines = File.ReadAllLines(path);
+            //            for (int i = 0; i < lines.Length; i++)
+            //            {
+            //                string[] monsterIds = lines[i].Split(',');
+            //                fusions.fusions[i].LowerCardIndex = Convert.ToUInt16(Int32.Parse(monsterIds[0]));
+            //                fusions.fusions[i].UpperCardIndex = Convert.ToUInt16(Int32.Parse(monsterIds[1]));
+            //                fusions.fusions[i].FusionCardIndex = Convert.ToUInt16(Int32.Parse(monsterIds[2]));
+            //            }
+
         }
         public struct CardParameters
         {
