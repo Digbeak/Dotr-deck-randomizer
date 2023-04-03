@@ -1,5 +1,7 @@
 ﻿namespace DOTR_Modding_Tool
 {
+    using Equin.ApplicationFramework;
+    using System.Collections.Generic;
     using System.Windows.Forms;
 
     public partial class MainForm
@@ -8,6 +10,7 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private Form randomizerform = null;
         private System.Windows.Forms.OpenFileDialog isoSelectorFileDialog;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem openISOMenuItem;
@@ -34,6 +37,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
@@ -90,6 +94,7 @@
             this.averageDeckCostLabel = new System.Windows.Forms.Label();
             this.deckStrengthMultiplierTrackBar = new System.Windows.Forms.TrackBar();
             this.deckStrengthMultiplierTrackBarLabel = new System.Windows.Forms.Label();
+
             this.banlistTab = new System.Windows.Forms.TabPage();
             this.banlistTabSplitContainer = new System.Windows.Forms.SplitContainer();
             banlistTrunkSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -113,12 +118,52 @@
             this.banlistDeckCostColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.banlistDataGridView = new System.Windows.Forms.DataGridView();
             this.banlistSplitContainer = new System.Windows.Forms.SplitContainer();
+
+            draftTab = new TabPage();
+            draftTabSplitContainer = new SplitContainer();
+            draftTrunkSplitContainer = new SplitContainer();
+            draftTrunkDataGridView = new DataGridView();
+            draftIndex = new DataGridViewTextBoxColumn();
+             draftnameColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkAttackColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkDefenseColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkLevelColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkAttributeColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkTypeColumn = new DataGridViewTextBoxColumn();
+      draftcardTrunkDeckCostColumn = new DataGridViewTextBoxColumn();
+      draftTrunkContextMenuStrip = new ContextMenuStrip();
+      draftindexColumn = new DataGridViewTextBoxColumn();
+      draftNameColumn = new DataGridViewTextBoxColumn();
+      draftAttackColumn= new DataGridViewTextBoxColumn();
+      draftDefenseColumn= new DataGridViewTextBoxColumn();
+      draftLevelColumn= new DataGridViewTextBoxColumn();
+      draftAttributeColumn= new DataGridViewTextBoxColumn();
+      draftTypeColumn= new DataGridViewTextBoxColumn();
+      draftDeckCostColumn= new DataGridViewTextBoxColumn();
+      draftDataGridView = new DataGridView();
+      draftSplitContainer = new SplitContainer();
+      draftCardAmountLabel = new Label();
+            draftDeckCostLable = new Label();
+
             saveBanlistButton = new System.Windows.Forms.Button();
             randomizeAllDecksButton = new System.Windows.Forms.Button();
             randomizeFusionsButton = new System.Windows.Forms.Button();
-            reducedSpellsAndTraps = new System.Windows.Forms.CheckBox();
             restoreOriginalFusionsButton = new System.Windows.Forms.Button();
             this.setAllAiToDeckleaderKButton = new System.Windows.Forms.Button();
+            minSpellsSlider = new TrackBar();
+            minSpellsSliderLabel = new Label();
+            maxSpellsSlider = new TrackBar();
+            maxSpellsSliderLabel = new Label();
+            spellsAndTrapsLabel = new Label();
+            ritualsLabel = new Label();
+            ritualsRadioButton = new RadioButton();
+            ritualsGroupBox = new GroupBox();
+            ritualchancesliderlabel = new Label();
+            ritualchanceslider = new TrackBar();
+            ritualsRadioButton2 = new RadioButton();
+            ritualsRadioButton3 = new RadioButton();
+            randomizeEnemyDecksButton = new Button();
+            restorDefaultEnemyDecksButton = new Button();
 
             this.label1 = new System.Windows.Forms.Label();
             this.cardConstantsFilterButton = new System.Windows.Forms.Button();
@@ -147,12 +192,8 @@
             this.deckEditorTab = new System.Windows.Forms.TabPage();
             this.deckEditorTabSplitContainer = new System.Windows.Forms.SplitContainer();
             this.cardTrunkSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.trunkTipLabel = new System.Windows.Forms.Label();
+           // this.trunkTipLabel = new System.Windows.Forms.Label();
             this.cardTrunkLabel = new System.Windows.Forms.Label();
-            this.trunkFilterTextBox = new System.Windows.Forms.TextBox();
-            this.trunkClearFilterButton = new System.Windows.Forms.Button();
-            this.trunkApplyFilterButton = new System.Windows.Forms.Button();
-            this.trunkNameFilterLabel = new System.Windows.Forms.Label();
             this.trunkDataGridView = new System.Windows.Forms.DataGridView();
             this.Index = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nameColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -271,7 +312,135 @@
             this.banlistTabSplitContainer.Panel1.SuspendLayout();
             this.banlistTabSplitContainer.Panel2.SuspendLayout();
             this.banlistTabSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.draftTabSplitContainer)).BeginInit();
+            this.draftTabSplitContainer.Panel1.SuspendLayout();
+            this.draftTabSplitContainer.Panel2.SuspendLayout();
+            this.draftTabSplitContainer.SuspendLayout();
             this.SuspendLayout();
+
+            //randomizationoptions
+            //randomizerform = new System.Windows.Forms.Form();
+            //testButton = new System.Windows.Forms.Button();
+            ////trunkDataGridView
+            //this.testButton.Location = new System.Drawing.Point(202, 89);
+            //this.testButton.Name = "treasureCardSaveButton";
+            //this.testButton.Size = new System.Drawing.Size(75, 23);
+            //this.testButton.TabIndex = 2;
+            //this.testButton.Text = "test";
+            //this.testButton.UseVisualStyleBackColor = true;
+            //this.testButton.Click += new System.EventHandler(this.treasureCardSaveButton_Click);
+
+            //this.testPanel = new Panel();
+            //this.testPanel.Controls.Add(testButton);
+
+            //this.deckRandomizerPanels = new List<Panel>();
+
+            //this.deckRandomizerPanels.Add(testPanel);
+
+
+            //this.deckRandomizerOptionsBinding = new BindingListView<Panel>(deckRandomizerPanels);
+
+            spellsAndTrapsLabel.Name = "spellsAndTrapsLabel";
+            spellsAndTrapsLabel.Text = "Spells and traps:";
+            spellsAndTrapsLabel.Location = new System.Drawing.Point(10, 10);
+            spellsAndTrapsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            spellsAndTrapsLabel.Size = new System.Drawing.Size(150, 20);
+            cardTrunkSplitContainer.Panel2.Controls.Add(spellsAndTrapsLabel);
+
+            minSpellsSlider.Name = "minspellsslider";
+            minSpellsSlider.Maximum = 20;
+            minSpellsSlider.Value = 5;
+            minSpellsSlider.Location = new System.Drawing.Point(10, 70);
+            minSpellsSlider.ValueChanged += new System.EventHandler(minSpellsChanged);
+
+            minSpellsSliderLabel.Name = "minspellssliderlabel";
+            minSpellsSliderLabel.Text = "Minimum amount:" + minSpellsSlider.Value.ToString();
+            minSpellsSliderLabel.Location = new System.Drawing.Point(10, 40);
+            minSpellsSliderLabel.Size = new System.Drawing.Size(110, 20);
+            cardTrunkSplitContainer.Panel2.Controls.Add(minSpellsSliderLabel);
+            this.cardTrunkSplitContainer.Panel2.Controls.Add(minSpellsSlider);
+
+            maxSpellsSlider.Name = "maxspellsslider";
+            maxSpellsSlider.Maximum = 30;
+            maxSpellsSlider.Value = 10;
+            maxSpellsSlider.Location = new System.Drawing.Point(120, 70);
+            maxSpellsSlider.ValueChanged += new System.EventHandler(maxSpellsChanged);
+
+            maxSpellsSliderLabel.Name = "maxspellssliderlabel";
+            maxSpellsSliderLabel.Text = "Maximum amount:" + maxSpellsSlider.Value.ToString();
+            maxSpellsSliderLabel.Location = new System.Drawing.Point(120, 40);
+            maxSpellsSliderLabel.Size = new System.Drawing.Size(150, 20);
+            cardTrunkSplitContainer.Panel2.Controls.Add(maxSpellsSliderLabel);
+            this.cardTrunkSplitContainer.Panel2.Controls.Add(maxSpellsSlider);
+
+            ritualsLabel.Name = "ritualsLabel";
+            ritualsLabel.Text = "Rituals:";
+            ritualsLabel.Location = new System.Drawing.Point(10, 120);
+            ritualsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            ritualsLabel.Size = new System.Drawing.Size(150, 20);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualsLabel);
+
+            ritualsRadioButton.Name = "ritualsradiobutton";
+            ritualsRadioButton.Text = "None";
+            ritualsRadioButton.Location = new System.Drawing.Point(10, 140);
+            ritualsRadioButton.Size = new System.Drawing.Size(100, 30);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualsRadioButton);
+
+            ritualsRadioButton2.Name = "ritualsradiobutton2";
+            ritualsRadioButton2.Text = "Chance";
+            ritualsRadioButton2.Location = new System.Drawing.Point(10, 170);
+            ritualsRadioButton2.Size = new System.Drawing.Size(100, 30);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualsRadioButton2);
+
+            ritualsRadioButton3.Name = "ritualsradiobutton3";
+            ritualsRadioButton3.Text = "Guaranteed";
+            ritualsRadioButton3.Location = new System.Drawing.Point(10, 200);
+            ritualsRadioButton3.Size = new System.Drawing.Size(100, 30);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualsRadioButton3);
+
+            ritualchanceslider.Name = "ritualsslider";
+            ritualchanceslider.Minimum = 0;
+            ritualchanceslider.Maximum = 100;
+            ritualchanceslider.Value = 25;
+            ritualchanceslider.Location = new System.Drawing.Point(110, 170);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualchanceslider);
+
+            ritualchancesliderlabel.Name = "ritualchancesliderlabel";
+            ritualchancesliderlabel.Text = ritualchanceslider.Value.ToString() + "%";
+            ritualchancesliderlabel.Location = new System.Drawing.Point(220, 170);
+            ritualchancesliderlabel.Size = new System.Drawing.Size(30, 20);
+            ritualchanceslider.ValueChanged += new System.EventHandler(ritualschanceChanged);
+            cardTrunkSplitContainer.Panel2.Controls.Add(ritualchancesliderlabel);
+
+            randomizeEnemyDecksButton.Location = new System.Drawing.Point(50, 30);
+            randomizeEnemyDecksButton.Name = "randomizeAllEnemyDecksButton";
+            randomizeEnemyDecksButton.Size = new System.Drawing.Size(150, 20);
+            randomizeEnemyDecksButton.TabIndex = 12;
+            randomizeEnemyDecksButton.Text = "Randomize all enemy decks";
+            randomizeEnemyDecksButton.Click += new System.EventHandler(randomizeEnemyDecks);
+            cardTrunkSplitContainer.Panel1.Controls.Add(randomizeEnemyDecksButton);
+
+            restorDefaultEnemyDecksButton.Location = new System.Drawing.Point(50, 10);
+            restorDefaultEnemyDecksButton.Name = "restorDefaultEnemyDecksButton";
+            restorDefaultEnemyDecksButton.Size = new System.Drawing.Size(150, 20);
+            restorDefaultEnemyDecksButton.TabIndex = 12;
+            restorDefaultEnemyDecksButton.Text = "Default enemy decks";
+            restorDefaultEnemyDecksButton.Click += new System.EventHandler(RestoreDefaultEnemyDecks);
+            cardTrunkSplitContainer.Panel1.Controls.Add(restorDefaultEnemyDecksButton);
+
+            //ritualsGroupBox.Name = "ritualsgroupbox";
+            //ritualsGroupBox.Location = new System.Drawing.Point(40, 140);
+            //ritualsGroupBox.Size = new System.Drawing.Size(150, 40);
+            //ritualsGroupBox.Controls.Add(ritualsRadioButton);
+            //ritualsGroupBox.Controls.Add(ritualsRadioButton2);
+            //ritualsGroupBox.Controls.Add(ritualsRadioButton3);
+            //this.cardTrunkSplitContainer.Panel2.Controls.Add(ritualsGroupBox);
+            //this.trunkDataGridView.DataSource = deckRandomizerPanels;
+            //private BindingListView<CardConstant> trunkCardConstantBinding;
+
+            //trunkCardConstantBinding = new BindingListView<Panel>();
+
+            // randomizerform.Show();
             // 
             // isoSelectorFileDialog
             // 
@@ -285,7 +454,8 @@
             this.additionalResourcesToolStripMenuItem1,
             this.viewSourceOnGithubToolStripMenuItem1,
             this.aboutToolStripMenuItem2,
-            this.coolStuffToolStripMenuItem});
+            this.coolStuffToolStripMenuItem
+    });
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(4, 2, 0, 2);
@@ -617,8 +787,8 @@
             // 
             this.splitContainer2.Panel1.Controls.Add(this.fusionTableTipLabel);
             this.splitContainer2.Panel1.Controls.Add(this.fusionSaveButton);
-            splitContainer2.Panel1.Controls.Add(randomizeFusionsButton);
-            splitContainer2.Panel1.Controls.Add(restoreOriginalFusionsButton);
+    splitContainer2.Panel1.Controls.Add(randomizeFusionsButton);
+    splitContainer2.Panel1.Controls.Add(restoreOriginalFusionsButton);
             // 
             // splitContainer2.Panel2
             // 
@@ -852,9 +1022,9 @@
             this.cardConstantsDataGridView.AllowUserToOrderColumns = true;
             this.cardConstantsDataGridView.AllowUserToResizeRows = false;
             this.cardConstantsDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+    dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+    dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+    dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -1092,6 +1262,7 @@
             this.mainTabControl.Controls.Add(this.hiddenCardsTab);
             this.mainTabControl.Controls.Add(this.leaderRankTresholdsTab);
             this.mainTabControl.Controls.Add(this.banlistTab);
+            this.mainTabControl.Controls.Add(draftTab);
             this.mainTabControl.Location = new System.Drawing.Point(0, 27);
             this.mainTabControl.Name = "mainTabControl";
             this.mainTabControl.SelectedIndex = 0;
@@ -1137,36 +1308,31 @@
             // 
             // cardTrunkSplitContainer.Panel1
             // 
-            this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkTipLabel);
+            //this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkTipLabel);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.cardTrunkLabel);
-            this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkFilterTextBox);
-            this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkClearFilterButton);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.averageDeckCost);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.averageDeckCostLabel);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.deckStrengthMultiplierTrackBar);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.deckStrengthMultiplierTrackBarLabel);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(this.deckTypeComboBox);
-            this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkApplyFilterButton);
-            this.cardTrunkSplitContainer.Panel1.Controls.Add(this.trunkNameFilterLabel);
             this.cardTrunkSplitContainer.Panel1.Controls.Add(randomizeAllDecksButton);
-            cardTrunkSplitContainer.Panel1.Controls.Add(reducedSpellsAndTraps);
             // 
             // cardTrunkSplitContainer.Panel2
             // 
-            this.cardTrunkSplitContainer.Panel2.Controls.Add(this.trunkDataGridView);
-            this.cardTrunkSplitContainer.Size = new System.Drawing.Size(569, 507);
-            this.cardTrunkSplitContainer.SplitterDistance = 60;
-            this.cardTrunkSplitContainer.TabIndex = 1;
+            //this.cardTrunkSplitContainer.Panel2.Controls.Add(this.trunkDataGridView);
+            //this.cardTrunkSplitContainer.Size = new System.Drawing.Size(569, 507);
+            //this.cardTrunkSplitContainer.SplitterDistance = 60;
+            //this.cardTrunkSplitContainer.TabIndex = 1;
             // 
             // trunkTipLabel
             // 
-            this.trunkTipLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.trunkTipLabel.AutoSize = true;
-            this.trunkTipLabel.Location = new System.Drawing.Point(65, 11);
-            this.trunkTipLabel.Name = "trunkTipLabel";
-            this.trunkTipLabel.Size = new System.Drawing.Size(294, 13);
-            this.trunkTipLabel.TabIndex = 6;
-            this.trunkTipLabel.Text = "Double click card to add a new deck";
+            //this.trunkTipLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            //this.trunkTipLabel.AutoSize = true;
+            //this.trunkTipLabel.Location = new System.Drawing.Point(65, 11);
+            //this.trunkTipLabel.Name = "trunkTipLabel";
+            //this.trunkTipLabel.Size = new System.Drawing.Size(294, 13);
+            //this.trunkTipLabel.TabIndex = 6;
+            //this.trunkTipLabel.Text = "Double click card to add a new deck";
             // 
             // cardTrunkLabel
             // 
@@ -1177,36 +1343,18 @@
             this.cardTrunkLabel.Size = new System.Drawing.Size(54, 20);
             this.cardTrunkLabel.TabIndex = 5;
             this.cardTrunkLabel.Text = "Trunk";
-            // 
-            // trunkFilterTextBox
-            // 
-            this.trunkFilterTextBox.Location = new System.Drawing.Point(46, 34);
-            this.trunkFilterTextBox.Name = "trunkFilterTextBox";
-            this.trunkFilterTextBox.Size = new System.Drawing.Size(122, 20);
-            this.trunkFilterTextBox.TabIndex = 4;
-            this.trunkFilterTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.trunkFilterTextbox_KeyDown);
-            // 
-            // trunkClearFilterButton
-            // 
-            this.trunkClearFilterButton.Location = new System.Drawing.Point(255, 32);
-            this.trunkClearFilterButton.Name = "trunkClearFilterButton";
-            this.trunkClearFilterButton.Size = new System.Drawing.Size(75, 23);
-            this.trunkClearFilterButton.TabIndex = 3;
-            this.trunkClearFilterButton.Text = "Clear";
-            this.trunkClearFilterButton.UseVisualStyleBackColor = true;
-            this.trunkClearFilterButton.Click += new System.EventHandler(this.trunkClearButton_Click);
             //my things
             this.deckTypeComboBox.DisplayMember = "Name";
             this.deckTypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.deckTypeComboBox.FormattingEnabled = true;
-            this.deckTypeComboBox.Location = new System.Drawing.Point(337, 33);
+            this.deckTypeComboBox.Location = new System.Drawing.Point(337, 13);
             this.deckTypeComboBox.Name = "deckTypeComboBox";
             this.deckTypeComboBox.Size = new System.Drawing.Size(60, 23);
             this.deckTypeComboBox.TabIndex = 8;
             this.deckTypeComboBox.ValueMember = "Index";
             this.deckTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.deckTypeComboBoxSelectedValueChanged);
             //
-            this.averageDeckCost.Location = new System.Drawing.Point(460, 32);
+            this.averageDeckCost.Location = new System.Drawing.Point(430, 22);
             this.averageDeckCost.Name = "averageDeckCost";
             this.averageDeckCost.Size = new System.Drawing.Size(75, 23);
             this.averageDeckCost.TabIndex = 9;
@@ -1214,40 +1362,250 @@
             this.averageDeckCost.ValueChanged  += new System.EventHandler(this.averageDeckCostChanges);
             this.averageDeckCost.Hide();
             //
-            this.averageDeckCostLabel.Location = new System.Drawing.Point(460, 12);
+            this.averageDeckCostLabel.Location = new System.Drawing.Point(430, 2);
             this.averageDeckCostLabel.Name = "averageDeckCostLabel";
             this.averageDeckCostLabel.Size = new System.Drawing.Size(150, 23);
             this.averageDeckCostLabel.TabIndex = 10;
             this.averageDeckCostLabel.Text = "Deck cost: " + CalculateAverageDeckCost().ToString();
             this.averageDeckCost.Hide();
             //
-            this.deckStrengthMultiplierTrackBar.Location = new System.Drawing.Point(460, 32);
+            this.deckStrengthMultiplierTrackBar.Location = new System.Drawing.Point(430, 22);
             this.deckStrengthMultiplierTrackBar.Name = "deckStrengthMultiplierTrackBar";
             this.deckStrengthMultiplierTrackBar.Size = new System.Drawing.Size(75, 23);
             this.deckStrengthMultiplierTrackBar.TabIndex = 9;
             this.deckStrengthMultiplierTrackBar.Value = 5;
             this.deckStrengthMultiplierTrackBar.ValueChanged += new System.EventHandler(this.deckStrengthValueChanged);
             //
-            this.deckStrengthMultiplierTrackBarLabel.Location = new System.Drawing.Point(460, 12);
+            this.deckStrengthMultiplierTrackBarLabel.Location = new System.Drawing.Point(430, 2);
             this.deckStrengthMultiplierTrackBarLabel.Name = "deckStrengthMultiplierTrackBar";
             this.deckStrengthMultiplierTrackBarLabel.Size = new System.Drawing.Size(150, 23);
             this.deckStrengthMultiplierTrackBarLabel.TabIndex = 10;
             this.deckStrengthMultiplierTrackBarLabel.Text = "Deckstrength: " + (CalculateDeckStrengthMultiplier()).ToString();
             //
-            randomizeAllDecksButton.Location = new System.Drawing.Point(250, 8);
+            randomizeAllDecksButton.Location = new System.Drawing.Point(200, 30);
             randomizeAllDecksButton.Name = "randomizeAllDecksButton";
             randomizeAllDecksButton.Size = new System.Drawing.Size(120, 20);
             randomizeAllDecksButton.TabIndex = 11;
             randomizeAllDecksButton.Text = "Randomize all decks";
             randomizeAllDecksButton.Click += new System.EventHandler(randomizeAllDecks);
+
+            this.draftTab.Controls.Add(this.draftTabSplitContainer);
+            this.draftTab.Location = new System.Drawing.Point(4, 22);
+            this.draftTab.Name = "draftTab";
+            this.draftTab.Padding = new System.Windows.Forms.Padding(3);
+            this.draftTab.Size = new System.Drawing.Size(1156, 513);
+            this.draftTab.TabIndex = 8;
+            this.draftTab.Text = "Draft";
+            this.draftTab.UseVisualStyleBackColor = true;
             //
-            reducedSpellsAndTraps.Location = new System.Drawing.Point(380, 8);
-            reducedSpellsAndTraps.Name = "reduceSpellsAndTraps";
-            reducedSpellsAndTraps.Size = new System.Drawing.Size(120, 20);
-            reducedSpellsAndTraps.TabIndex = 12;
-            reducedSpellsAndTraps.Text = "Less spells";
-            reducedSpellsAndTraps.Checked = true;
+            this.draftTabSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.draftTabSplitContainer.Location = new System.Drawing.Point(3, 3);
+            this.draftTabSplitContainer.Name = "draftTabSplitContainer";
+            // 
+            this.draftTabSplitContainer.Panel1.Controls.Add(this.draftTrunkSplitContainer);
+            // 
+            this.draftTabSplitContainer.Panel2.Controls.Add(this.draftSplitContainer);
+            this.draftTabSplitContainer.Size = new System.Drawing.Size(1150, 507);
+            this.draftTabSplitContainer.SplitterDistance = 569;
+            this.draftTabSplitContainer.TabIndex = 0;
             //
+            this.draftTrunkSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.draftTrunkSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.draftTrunkSplitContainer.IsSplitterFixed = true;
+            this.draftTrunkSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.draftTrunkSplitContainer.Name = "draftTrunkSplitContainer";
+            this.draftTrunkSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            this.draftTrunkSplitContainer.Panel2.Controls.Add(this.draftTrunkDataGridView);
+            this.draftTrunkSplitContainer.Size = new System.Drawing.Size(569, 507);
+            this.draftTrunkSplitContainer.SplitterDistance = 60;
+            this.draftTrunkSplitContainer.TabIndex = 1;
+            //
+            this.draftTrunkDataGridView.AllowUserToAddRows = false;
+            this.draftTrunkDataGridView.AllowUserToDeleteRows = false;
+            this.draftTrunkDataGridView.AllowUserToResizeRows = false;
+            this.draftTrunkDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.draftTrunkDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.draftIndex,
+            this.draftnameColumn,
+            this.draftcardTrunkAttackColumn,
+            this.draftcardTrunkDefenseColumn,
+            this.draftcardTrunkLevelColumn,
+            this.draftcardTrunkAttributeColumn,
+            this.draftcardTrunkTypeColumn,
+            this.draftcardTrunkDeckCostColumn});
+            this.draftTrunkDataGridView.ContextMenuStrip = this.draftTrunkContextMenuStrip;
+            this.draftTrunkDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.draftTrunkDataGridView.Location = new System.Drawing.Point(0, 0);
+            this.draftTrunkDataGridView.Name = "draftTrunkDataGridView";
+            this.draftTrunkDataGridView.RowHeadersVisible = false;
+            this.draftTrunkDataGridView.Size = new System.Drawing.Size(569, 443);
+            this.draftTrunkDataGridView.TabIndex = 0;
+            //
+            this.draftIndex.DataPropertyName = "Index";
+            this.draftIndex.HeaderText = "#";
+            this.draftIndex.Name = "Index";
+            this.draftIndex.ReadOnly = true;
+            this.draftIndex.Width = 32;
+            // 
+            this.draftnameColumn.DataPropertyName = "Name";
+            this.draftnameColumn.HeaderText = "Name";
+            this.draftnameColumn.Name = "nameColumn";
+            this.draftnameColumn.ReadOnly = true;
+            this.draftnameColumn.Width = 200;
+            // 
+            this.draftcardTrunkAttackColumn.DataPropertyName = "Attack";
+            this.draftcardTrunkAttackColumn.HeaderText = "Attack";
+            this.draftcardTrunkAttackColumn.Name = "draftcardTrunkAttackColumn";
+            this.draftcardTrunkAttackColumn.ReadOnly = true;
+            this.draftcardTrunkAttackColumn.Width = 40;
+            // 
+            this.draftcardTrunkDefenseColumn.DataPropertyName = "Defense";
+            this.draftcardTrunkDefenseColumn.HeaderText = "Defense";
+            this.draftcardTrunkDefenseColumn.Name = "draftcardTrunkDefenseColumn";
+            this.draftcardTrunkDefenseColumn.ReadOnly = true;
+            this.draftcardTrunkDefenseColumn.Width = 40;
+            // 
+            this.draftcardTrunkLevelColumn.DataPropertyName = "Level";
+            this.draftcardTrunkLevelColumn.HeaderText = "Lvl";
+            this.draftcardTrunkLevelColumn.Name = "draftcardTrunkLevelColumn";
+            this.draftcardTrunkLevelColumn.ReadOnly = true;
+            this.draftcardTrunkLevelColumn.Width = 30;
+            // 
+            this.draftcardTrunkAttributeColumn.DataPropertyName = "AttributeName";
+            this.draftcardTrunkAttributeColumn.HeaderText = "Attribute";
+            this.draftcardTrunkAttributeColumn.Name = "draftcardTrunkAttributeColumn";
+            this.draftcardTrunkAttributeColumn.ReadOnly = true;
+            this.draftcardTrunkAttributeColumn.Width = 50;
+            // 
+            this.draftcardTrunkTypeColumn.DataPropertyName = "Type";
+            this.draftcardTrunkTypeColumn.HeaderText = "Type";
+            this.draftcardTrunkTypeColumn.Name = "draftcardTrunkTypeColumn";
+            this.draftcardTrunkTypeColumn.ReadOnly = true;
+            // 
+            this.draftcardTrunkDeckCostColumn.DataPropertyName = "DeckCost";
+            this.draftcardTrunkDeckCostColumn.HeaderText = "DC";
+            this.draftcardTrunkDeckCostColumn.Name = "draftcardTrunkDeckCostColumn";
+            this.draftcardTrunkDeckCostColumn.ReadOnly = true;
+            this.draftcardTrunkDeckCostColumn.Width = 30;
+            //
+            this.draftDataGridView.AllowUserToAddRows = false;
+            this.draftDataGridView.AllowUserToDeleteRows = false;
+            this.draftDataGridView.AllowUserToResizeRows = false;
+            this.draftDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.draftDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.draftindexColumn,
+            this.draftNameColumn,
+            this.draftAttackColumn,
+            this.draftDefenseColumn,
+            this.draftLevelColumn,
+            this.draftAttributeColumn,
+            this.draftTypeColumn,
+            this.draftDeckCostColumn});
+            this.draftDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.draftDataGridView.Location = new System.Drawing.Point(0, 0);
+            this.draftDataGridView.Name = "draftDataGridView";
+            this.draftDataGridView.RowHeadersVisible = false;
+            this.draftDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.draftDataGridView.Size = new System.Drawing.Size(577, 443);
+            this.draftDataGridView.TabIndex = 0;
+            //
+            this.draftSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.draftSplitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.draftSplitContainer.IsSplitterFixed = true;
+            this.draftSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.draftSplitContainer.Name = "draftSplitContainer";
+            this.draftSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            this.draftSplitContainer.Panel2.Controls.Add(this.draftDataGridView);
+            this.draftSplitContainer.Size = new System.Drawing.Size(577, 507);
+            this.draftSplitContainer.SplitterDistance = 60;
+            this.draftSplitContainer.TabIndex = 0;
+            //
+            this.draftindexColumn.DataPropertyName = "Number";
+            this.draftindexColumn.HeaderText = "#";
+            this.draftindexColumn.Name = "indexColumn";
+            this.draftindexColumn.ReadOnly = true;
+            this.draftindexColumn.Width = 32;
+
+            // 
+            // deckTableNameColumn
+            // 
+            this.draftNameColumn.DataPropertyName = "Name";
+            this.draftNameColumn.HeaderText = "Name";
+            this.draftNameColumn.Name = "draftdeckTableNameColumn";
+            this.draftNameColumn.ReadOnly = true;
+            this.draftNameColumn.Width = 200;
+            // 
+            // deckEditAttackColumn
+            // 
+            this.draftAttackColumn.DataPropertyName = "Attack";
+            this.draftAttackColumn.HeaderText = "Attack";
+            this.draftAttackColumn.Name = "draftdeckAttackColumn";
+            this.draftAttackColumn.ReadOnly = true;
+            this.draftAttackColumn.Width = 40;
+            // 
+            // deckEditDefenseColumn
+            // 
+            this.draftDefenseColumn.DataPropertyName = "Defense";
+            this.draftDefenseColumn.HeaderText = "Defense";
+            this.draftDefenseColumn.Name = "draftdeckDefenseColumn";
+            this.draftDefenseColumn.ReadOnly = true;
+            this.draftDefenseColumn.Width = 40;
+            // 
+            // deckEditLevelColumn
+            // 
+            this.draftLevelColumn.DataPropertyName = "Level";
+            this.draftLevelColumn.HeaderText = "Lvl";
+            this.draftLevelColumn.Name = "draftdeckLevelColumn";
+            this.draftLevelColumn.ReadOnly = true;
+            this.draftLevelColumn.Width = 30;
+            // 
+            // deckEditAttributeColumn
+            // 
+            this.draftAttributeColumn.DataPropertyName = "Attribute";
+            this.draftAttributeColumn.HeaderText = "Attribute";
+            this.draftAttributeColumn.Name = "draftdeckAttributeColumn";
+            this.draftAttributeColumn.ReadOnly = true;
+            this.draftAttributeColumn.Width = 50;
+            // 
+            // deckEditTypeColumn
+            // 
+            this.draftTypeColumn.DataPropertyName = "Type";
+            this.draftTypeColumn.HeaderText = "Type";
+            this.draftTypeColumn.Name = "draftdeckTypeColumn";
+            this.draftTypeColumn.ReadOnly = true;
+            // 
+            // deckEditDeckCostColumn
+            // 
+            this.draftDeckCostColumn.DataPropertyName = "DeckCost";
+            this.draftDeckCostColumn.HeaderText = "DC";
+            this.draftDeckCostColumn.Name = "draftdeckDeckCostColumn";
+            this.draftDeckCostColumn.ReadOnly = true;
+            this.draftDeckCostColumn.Width = 30;
+
+            draftCardAmountLabel.Name = "draftCardAmountLabel";
+            draftCardAmountLabel.Text = GetDraftDeckCardAmountString();
+            draftCardAmountLabel.Location = new System.Drawing.Point(10, 10);
+            draftCardAmountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            draftCardAmountLabel.Size = new System.Drawing.Size(150, 20);
+            draftSplitContainer.Panel1.Controls.Add(draftCardAmountLabel);
+
+            draftDeckCostLable.Name = "draftDeckCostLable";
+            draftDeckCostLable.Text = "Dc:0";
+            draftDeckCostLable.Location = new System.Drawing.Point(200, 10);
+            draftDeckCostLable.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            draftDeckCostLable.Size = new System.Drawing.Size(80, 20);
+            draftSplitContainer.Panel1.Controls.Add(draftDeckCostLable);
+
+            //  banlistSplitContainer.Panel1.Controls.Add(saveBanlistButton);
+            //saveBanlistButton.Text = "Save";
+            //saveBanlistButton.Click += new System.EventHandler(this.saveBanList);
+            ////
+            ////
+            ////
+            //banlist
+            ////
             this.banlistTab.Controls.Add(this.banlistTabSplitContainer);
             this.banlistTab.Location = new System.Drawing.Point(4, 22);
             this.banlistTab.Name = "banlistTab";
@@ -1274,13 +1632,6 @@
             this.banlistTrunkSplitContainer.Location = new System.Drawing.Point(0, 0);
             this.banlistTrunkSplitContainer.Name = "banlistTrunkSplitContainer";
             this.banlistTrunkSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.trunkTipLabel);
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.cardTrunkLabel);
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.trunkFilterTextBox);
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.trunkClearFilterButton);
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.trunkApplyFilterButton);
-            //this.banlistTrunkSplitContainer.Panel1.Controls.Add(this.trunkNameFilterLabel);
             // 
             this.banlistTrunkSplitContainer.Panel2.Controls.Add(this.banlistTrunkDataGridView);
             this.banlistTrunkSplitContainer.Size = new System.Drawing.Size(569, 507);
@@ -1393,10 +1744,10 @@
             this.banlistindexColumn.Name = "indexColumn";
             this.banlistindexColumn.ReadOnly = true;
             this.banlistindexColumn.Width = 32;
-            //
-            banlistSplitContainer.Panel1.Controls.Add(saveBanlistButton);
-            saveBanlistButton.Text = "Save";
-            saveBanlistButton.Click += new System.EventHandler(this.saveBanList);
+    //
+    banlistSplitContainer.Panel1.Controls.Add(saveBanlistButton);
+    saveBanlistButton.Text = "Save";
+    saveBanlistButton.Click += new System.EventHandler(this.saveBanList);
             // 
             // deckTableNameColumn
             // 
@@ -1460,25 +1811,6 @@
             //this.addSelectedCardsToDeckToolStripMenuItem});
             //this.trunkContextMenuStrip.Name = "trunkContextMenuStrip";
             //this.trunkContextMenuStrip.Size = new System.Drawing.Size(216, 48);
-            // 
-            // trunkApplyFilterButton
-            // 
-            this.trunkApplyFilterButton.Location = new System.Drawing.Point(174, 32);
-            this.trunkApplyFilterButton.Name = "trunkApplyFilterButton";
-            this.trunkApplyFilterButton.Size = new System.Drawing.Size(75, 23);
-            this.trunkApplyFilterButton.TabIndex = 2;
-            this.trunkApplyFilterButton.Text = "Apply";
-            this.trunkApplyFilterButton.UseVisualStyleBackColor = true;
-            this.trunkApplyFilterButton.Click += new System.EventHandler(this.trunkSearchButton_Click);
-            // 
-            // trunkNameFilterLabel
-            // 
-            this.trunkNameFilterLabel.AutoSize = true;
-            this.trunkNameFilterLabel.Location = new System.Drawing.Point(8, 36);
-            this.trunkNameFilterLabel.Name = "trunkNameFilterLabel";
-            this.trunkNameFilterLabel.Size = new System.Drawing.Size(32, 13);
-            this.trunkNameFilterLabel.TabIndex = 1;
-            this.trunkNameFilterLabel.Text = "Filter:";
             // 
             // trunkDataGridView
             // 
@@ -2131,176 +2463,217 @@
             this.ResumeLayout(false);
             this.PerformLayout();
 
-        }
-
-        #endregion
-        private TabPage hiddenCardsTab;
-        private SplitContainer hiddenCardsSplitContainer;
-        private TabPage enemyAiTab;
-        private SplitContainer enemyAiTabSplitContainer;
-        private Button enemyAiSaveButton;
-        private DataGridView enemyAiDataGridView;
-        private DataGridViewTextBoxColumn EnemyIndex;
-        private DataGridViewTextBoxColumn EnemyNameColumn;
-        private DataGridViewComboBoxColumn EnemyAiColumn;
-        private TabPage fusionsTab;
-        private SplitContainer splitContainer2;
-        private Label fusionTableTipLabel;
-        private Button fusionSaveButton;
-        private DataGridView fusionsDataGridView;
-        private TabPage cardPropertiesTab;
-        private SplitContainer splitContainer1;
-        private Button cardConstantsSaveButton;
-        private Button cardConstantFilterClearButton;
-        private Label label1;
-        private Button cardConstantsFilterButton;
-        private TextBox cardConstantsFilterTextbox;
-        private DataGridView cardConstantsDataGridView;
-        private TabPage leaderRankTresholdsTab;
-        private TextBox textBox2;
-        private TextBox textBox1;
-        private TextBox newRankThresholdsTextbox;
-        private TextBox originalRankThresholdsTextbox;
-        private Button rankThresholdsSaveButton;
-        private DataGridView rankThresholdsDataGridView;
-        private TabControl mainTabControl;
-        private ListBox treasureCardsListbox;
-        private Button treasureCardSaveButton;
-        private ComboBox treasureCardCardComboBox;
-        private NumericUpDown treasureCardColumnNumericUpDown;
-        private NumericUpDown treasureCardRowNumericUpDown;
-        private Label label4;
-        private Label label3;
-        private Label label2;
-        private Label label6;
-        private Label label5;
-        private Label label7;
-        private ContextMenuStrip cardConstantsContextStrip;
-        private Label label8;
-        private DataGridViewTextBoxColumn CardConstantId;
-        private DataGridViewTextBoxColumn CardConstantName;
-        private DataGridViewTextBoxColumn CardConstantAttack;
-        private DataGridViewTextBoxColumn CardConstantDefense;
-        private DataGridViewTextBoxColumn CardConstantsType;
-        private DataGridViewTextBoxColumn CardConstantsAttribute;
-        private DataGridViewTextBoxColumn CardConstantsLevel;
-        private DataGridViewTextBoxColumn CardConstantDeckCost;
-        private DataGridViewCheckBoxColumn CardConstantSlots;
-        private DataGridViewCheckBoxColumn CardConstantIsSlotRare;
-        private DataGridViewCheckBoxColumn CardConstantReincarnation;
-        private DataGridViewCheckBoxColumn CardConstantPasswordWorks;
-        private TabPage deckLeaderAbilitiesTab;
-        private SplitContainer cardDeckLeaderAbilitiesSplitContainer;
-        private DataGridView cardDeckLeaderAbilitiesDatagridview;
-        private ContextMenuStrip cardDeckLeaderAbilitiesContextStrip;
-        private TabPage equipCompabilityTab;
-        private SplitContainer equipCompabilitySplitContainer;
-        private DataGridView equipCompatibilityDataGridView;
-        private DataGridViewTextBoxColumn EquipCompatabilityCardIndexColumn;
-        private DataGridViewTextBoxColumn EquipCompatabilityCardNameColumn;
-        private DataGridViewTextBoxColumn CompatibleEquipCountColumn;
-        private DataGridViewTextBoxColumn EquipCompatabilityEquipCardsColumn;
-        private ContextMenuStrip monsterCardEquipCompatibilitiesContextMenuStrip;
-        private ToolStripMenuItem editMonsterEquipMenuItem;
-        private Button equipCompatibilitySaveButton;
-        private Label cardEquipNoteLabel1;
-        private Button deckLeaderAbilitiesSaveButton;
-        private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesIndexColumn;
-        private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesNameColumn;
-        private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesEnabledAbilitiesColumn;
-        private DataGridViewTextBoxColumn Bytes;
-        private Label deckLeaderAbilityTabTipsLabel;
-        private DataGridViewTextBoxColumn FusionsDataGridViewIndex;
-        private DataGridViewTextBoxColumn LowerCardMaterialCardNumber;
-        private DataGridViewComboBoxColumn FusionsDataGridViewLowerCard;
-        private DataGridViewTextBoxColumn HigherCardMaterialCardNumber;
-        private DataGridViewComboBoxColumn FusionsDataGridViewUpperCard;
-        private DataGridViewTextBoxColumn ResultingFusionId;
-        private DataGridViewComboBoxColumn FusionsDataGridViewFusionCard;
-        private TabPage deckEditorTab;
-        private SplitContainer deckEditorTabSplitContainer;
-        private DataGridView trunkDataGridView;
-        private SplitContainer deckEditorSplitContainer;
-        private Label deckLabel;
-        private ComboBox deckDropdown;
-        private Button deckEditSaveButton;
-        private DataGridView deckEditorDataGridView;
-        private DataGridViewTextBoxColumn indexColumn;
-        private DataGridViewTextBoxColumn deckTableNameColumn;
-        private DataGridViewTextBoxColumn deckEditAttackColumn;
-        private DataGridViewTextBoxColumn deckEditDefenseColumn;
-        private DataGridViewTextBoxColumn deckEditLevelColumn;
-        private DataGridViewTextBoxColumn deckEditAttributeColumn;
-        private DataGridViewTextBoxColumn deckEditTypeColumn;
-        private DataGridViewTextBoxColumn deckEditDeckCostColumn;
-        private DataGridViewTextBoxColumn Index;
-        private DataGridViewTextBoxColumn nameColumn;
-        private DataGridViewTextBoxColumn cardTrunkAttackColumn;
-        private DataGridViewTextBoxColumn cardTrunkDefenseColumn;
-        private DataGridViewTextBoxColumn cardTrunkLevelColumn;
-        private DataGridViewTextBoxColumn cardTrunkAttributeColumn;
-        private DataGridViewTextBoxColumn cardTrunkTypeColumn;
-        private DataGridViewTextBoxColumn cardTrunkDeckCostColumn;
-        private SplitContainer cardTrunkSplitContainer;
-        private Button trunkClearFilterButton;
-        //my things
-        private ComboBox deckTypeComboBox;
-        private TrackBar averageDeckCost;
-        private Label averageDeckCostLabel;
-        private TrackBar deckStrengthMultiplierTrackBar;
-        private Label deckStrengthMultiplierTrackBarLabel;
-        private TabPage banlistTab;
-        private SplitContainer banlistTabSplitContainer;
-        private SplitContainer banlistTrunkSplitContainer;
-        private DataGridView banlistTrunkDataGridView;
-        private DataGridViewTextBoxColumn banlistIndex;
-        private DataGridViewTextBoxColumn banlistnameColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkAttackColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkDefenseColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkLevelColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkAttributeColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkTypeColumn;
-        private DataGridViewTextBoxColumn banlistcardTrunkDeckCostColumn;
-        private ContextMenuStrip banListTrunkContextMenuStrip;
-        private DataGridViewTextBoxColumn banlistindexColumn;
-        private DataGridViewTextBoxColumn banlistNameColumn;
-        private DataGridViewTextBoxColumn banlistAttackColumn;
-        private DataGridViewTextBoxColumn banlistDefenseColumn;
-        private DataGridViewTextBoxColumn banlistLevelColumn;
-        private DataGridViewTextBoxColumn banlistAttributeColumn;
-        private DataGridViewTextBoxColumn banlistTypeColumn;
-        private DataGridViewTextBoxColumn banlistDeckCostColumn;
-        private DataGridView banlistDataGridView;
-        private SplitContainer banlistSplitContainer;
-        private Button saveBanlistButton;
-        private Button randomizeAllDecksButton;
-        private Button randomizeFusionsButton;
-        private CheckBox reducedSpellsAndTraps;
-        private Button restoreOriginalFusionsButton;
-        private Button setAllAiToDeckleaderKButton;
-
-        private Button trunkApplyFilterButton;
-        private Label trunkNameFilterLabel;
-        private TextBox trunkFilterTextBox;
-        private Label cardTrunkLabel;
-        private Label decksLabel;
-        private Label deckCardCountLabel;
-        private ContextMenuStrip deckEditContextMenuStrip;
-        private ToolStripMenuItem deckEditRemoveSelectedMenuItem;
-        private ComboBox deckEditDeckLeaderRankComboBox;
-        private ContextMenuStrip trunkContextMenuStrip;
-        private ToolStripMenuItem makeDeckLeaderToolStripMenuItem;
-        private ToolStripMenuItem addSelectedCardsToDeckToolStripMenuItem;
-        private Label deckEditDeckCostLabel;
-        private Label trunkTipLabel;
-        private Label deckEditTipLabel;
-        private ToolStripMenuItem additionalResourcesToolStripMenuItem1;
-        private ToolStripMenuItem dOTRMapEditorToolStripMenuItem1;
-        private ToolStripMenuItem viewSourceOnGithubToolStripMenuItem1;
-        private ToolStripMenuItem aboutToolStripMenuItem2;
-        private ToolStripMenuItem coolStuffToolStripMenuItem;
-        private ToolStripMenuItem clovisYoutubeChannelToolStripMenuItem;
-        private ToolStripMenuItem dOTRReduxModToolStripMenuItem;
-        private ToolStripMenuItem rOMMapDocumentationToolStripMenuItem;
     }
+
+    #endregion
+    private TabPage hiddenCardsTab;
+    private SplitContainer hiddenCardsSplitContainer;
+    private TabPage enemyAiTab;
+    private SplitContainer enemyAiTabSplitContainer;
+    private Button enemyAiSaveButton;
+    private DataGridView enemyAiDataGridView;
+    private DataGridViewTextBoxColumn EnemyIndex;
+    private DataGridViewTextBoxColumn EnemyNameColumn;
+    private DataGridViewComboBoxColumn EnemyAiColumn;
+    private TabPage fusionsTab;
+    private SplitContainer splitContainer2;
+    private Label fusionTableTipLabel;
+    private Button fusionSaveButton;
+    private DataGridView fusionsDataGridView;
+    private TabPage cardPropertiesTab;
+    private SplitContainer splitContainer1;
+    private Button cardConstantsSaveButton;
+    private Button cardConstantFilterClearButton;
+    private Label label1;
+    private Button cardConstantsFilterButton;
+    private TextBox cardConstantsFilterTextbox;
+    private DataGridView cardConstantsDataGridView;
+    private TabPage leaderRankTresholdsTab;
+    private TextBox textBox2;
+    private TextBox textBox1;
+    private TextBox newRankThresholdsTextbox;
+    private TextBox originalRankThresholdsTextbox;
+    private Button rankThresholdsSaveButton;
+    private DataGridView rankThresholdsDataGridView;
+    private TabControl mainTabControl;
+    private ListBox treasureCardsListbox;
+    private Button treasureCardSaveButton;
+    private ComboBox treasureCardCardComboBox;
+    private NumericUpDown treasureCardColumnNumericUpDown;
+    private NumericUpDown treasureCardRowNumericUpDown;
+    private Label label4;
+    private Label label3;
+    private Label label2;
+    private Label label6;
+    private Label label5;
+    private Label label7;
+    private ContextMenuStrip cardConstantsContextStrip;
+    private Label label8;
+    private DataGridViewTextBoxColumn CardConstantId;
+    private DataGridViewTextBoxColumn CardConstantName;
+    private DataGridViewTextBoxColumn CardConstantAttack;
+    private DataGridViewTextBoxColumn CardConstantDefense;
+    private DataGridViewTextBoxColumn CardConstantsType;
+    private DataGridViewTextBoxColumn CardConstantsAttribute;
+    private DataGridViewTextBoxColumn CardConstantsLevel;
+    private DataGridViewTextBoxColumn CardConstantDeckCost;
+    private DataGridViewCheckBoxColumn CardConstantSlots;
+    private DataGridViewCheckBoxColumn CardConstantIsSlotRare;
+    private DataGridViewCheckBoxColumn CardConstantReincarnation;
+    private DataGridViewCheckBoxColumn CardConstantPasswordWorks;
+    private TabPage deckLeaderAbilitiesTab;
+    private SplitContainer cardDeckLeaderAbilitiesSplitContainer;
+    private DataGridView cardDeckLeaderAbilitiesDatagridview;
+    private ContextMenuStrip cardDeckLeaderAbilitiesContextStrip;
+    private TabPage equipCompabilityTab;
+    private SplitContainer equipCompabilitySplitContainer;
+    private DataGridView equipCompatibilityDataGridView;
+    private DataGridViewTextBoxColumn EquipCompatabilityCardIndexColumn;
+    private DataGridViewTextBoxColumn EquipCompatabilityCardNameColumn;
+    private DataGridViewTextBoxColumn CompatibleEquipCountColumn;
+    private DataGridViewTextBoxColumn EquipCompatabilityEquipCardsColumn;
+    private ContextMenuStrip monsterCardEquipCompatibilitiesContextMenuStrip;
+    private ToolStripMenuItem editMonsterEquipMenuItem;
+    private Button equipCompatibilitySaveButton;
+    private Label cardEquipNoteLabel1;
+    private Button deckLeaderAbilitiesSaveButton;
+    private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesIndexColumn;
+    private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesNameColumn;
+    private DataGridViewTextBoxColumn cardDeckLeaderAbilitiesEnabledAbilitiesColumn;
+    private DataGridViewTextBoxColumn Bytes;
+    private Label deckLeaderAbilityTabTipsLabel;
+    private DataGridViewTextBoxColumn FusionsDataGridViewIndex;
+    private DataGridViewTextBoxColumn LowerCardMaterialCardNumber;
+    private DataGridViewComboBoxColumn FusionsDataGridViewLowerCard;
+    private DataGridViewTextBoxColumn HigherCardMaterialCardNumber;
+    private DataGridViewComboBoxColumn FusionsDataGridViewUpperCard;
+    private DataGridViewTextBoxColumn ResultingFusionId;
+    private DataGridViewComboBoxColumn FusionsDataGridViewFusionCard;
+    private TabPage deckEditorTab;
+    private SplitContainer deckEditorTabSplitContainer;
+    private DataGridView trunkDataGridView;
+    private SplitContainer deckEditorSplitContainer;
+    private Label deckLabel;
+    private ComboBox deckDropdown;
+    private Button deckEditSaveButton;
+    private DataGridView deckEditorDataGridView;
+    private DataGridViewTextBoxColumn indexColumn;
+    private DataGridViewTextBoxColumn deckTableNameColumn;
+    private DataGridViewTextBoxColumn deckEditAttackColumn;
+    private DataGridViewTextBoxColumn deckEditDefenseColumn;
+    private DataGridViewTextBoxColumn deckEditLevelColumn;
+    private DataGridViewTextBoxColumn deckEditAttributeColumn;
+    private DataGridViewTextBoxColumn deckEditTypeColumn;
+    private DataGridViewTextBoxColumn deckEditDeckCostColumn;
+    private DataGridViewTextBoxColumn Index;
+    private DataGridViewTextBoxColumn nameColumn;
+    private DataGridViewTextBoxColumn cardTrunkAttackColumn;
+    private DataGridViewTextBoxColumn cardTrunkDefenseColumn;
+    private DataGridViewTextBoxColumn cardTrunkLevelColumn;
+    private DataGridViewTextBoxColumn cardTrunkAttributeColumn;
+    private DataGridViewTextBoxColumn cardTrunkTypeColumn;
+    private DataGridViewTextBoxColumn cardTrunkDeckCostColumn;
+    private SplitContainer cardTrunkSplitContainer;
+    //my things
+    private ComboBox deckTypeComboBox;
+    private TrackBar averageDeckCost;
+    private Label averageDeckCostLabel;
+    private TrackBar deckStrengthMultiplierTrackBar;
+    private Label deckStrengthMultiplierTrackBarLabel;
+    private TabPage banlistTab;
+    private SplitContainer banlistTabSplitContainer;
+    private SplitContainer banlistTrunkSplitContainer;
+    private DataGridView banlistTrunkDataGridView;
+    private DataGridViewTextBoxColumn banlistIndex;
+    private DataGridViewTextBoxColumn banlistnameColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkAttackColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkDefenseColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkLevelColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkAttributeColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkTypeColumn;
+    private DataGridViewTextBoxColumn banlistcardTrunkDeckCostColumn;
+    private ContextMenuStrip banListTrunkContextMenuStrip;
+    private DataGridViewTextBoxColumn banlistindexColumn;
+    private DataGridViewTextBoxColumn banlistNameColumn;
+    private DataGridViewTextBoxColumn banlistAttackColumn;
+    private DataGridViewTextBoxColumn banlistDefenseColumn;
+    private DataGridViewTextBoxColumn banlistLevelColumn;
+    private DataGridViewTextBoxColumn banlistAttributeColumn;
+    private DataGridViewTextBoxColumn banlistTypeColumn;
+    private DataGridViewTextBoxColumn banlistDeckCostColumn;
+    private DataGridView banlistDataGridView;
+    private SplitContainer banlistSplitContainer;
+
+    private TabPage draftTab;
+    private SplitContainer draftTabSplitContainer;
+    private SplitContainer draftTrunkSplitContainer;
+    private DataGridView draftTrunkDataGridView;
+    private DataGridViewTextBoxColumn draftIndex;
+    private DataGridViewTextBoxColumn draftnameColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkAttackColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkDefenseColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkLevelColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkAttributeColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkTypeColumn;
+    private DataGridViewTextBoxColumn draftcardTrunkDeckCostColumn;
+    private ContextMenuStrip draftTrunkContextMenuStrip;
+    private DataGridViewTextBoxColumn draftindexColumn;
+    private DataGridViewTextBoxColumn draftNameColumn;
+    private DataGridViewTextBoxColumn draftAttackColumn;
+    private DataGridViewTextBoxColumn draftDefenseColumn;
+    private DataGridViewTextBoxColumn draftLevelColumn;
+    private DataGridViewTextBoxColumn draftAttributeColumn;
+    private DataGridViewTextBoxColumn draftTypeColumn;
+    private DataGridViewTextBoxColumn draftDeckCostColumn;
+    private DataGridView draftDataGridView;
+    private SplitContainer draftSplitContainer;
+        private Label draftCardAmountLabel;
+        private Label draftDeckCostLable;
+
+    private Button saveBanlistButton;
+    private Button randomizeAllDecksButton;
+    private Button randomizeFusionsButton;
+    private Button restoreOriginalFusionsButton;
+    private Button setAllAiToDeckleaderKButton;
+        //deckrandomizeroptions
+        //private BindingListView<Panel> deckRandomizerOptionsBinding;
+        //private Button testButton;
+        //private List<Panel> deckRandomizerPanels;
+        //private Panel testPanel;
+        private TrackBar minSpellsSlider;
+        private Label minSpellsSliderLabel;
+        private TrackBar maxSpellsSlider;
+        private Label maxSpellsSliderLabel;
+        private Label spellsAndTrapsLabel;
+        private Label ritualsLabel;
+        private GroupBox ritualsGroupBox;
+        private RadioButton ritualsRadioButton;
+        private Label ritualchancesliderlabel;
+        private TrackBar ritualchanceslider;
+        RadioButton ritualsRadioButton2;
+        RadioButton ritualsRadioButton3;
+        private Button randomizeEnemyDecksButton;
+        private Button restorDefaultEnemyDecksButton;
+
+        private Label cardTrunkLabel;
+    private Label decksLabel;
+    private Label deckCardCountLabel;
+    private ContextMenuStrip deckEditContextMenuStrip;
+    private ToolStripMenuItem deckEditRemoveSelectedMenuItem;
+    private ComboBox deckEditDeckLeaderRankComboBox;
+    private ContextMenuStrip trunkContextMenuStrip;
+    private ToolStripMenuItem makeDeckLeaderToolStripMenuItem;
+    private ToolStripMenuItem addSelectedCardsToDeckToolStripMenuItem;
+    private Label deckEditDeckCostLabel;
+    //private Label trunkTipLabel;
+    private Label deckEditTipLabel;
+    private ToolStripMenuItem additionalResourcesToolStripMenuItem1;
+    private ToolStripMenuItem dOTRMapEditorToolStripMenuItem1;
+    private ToolStripMenuItem viewSourceOnGithubToolStripMenuItem1;
+    private ToolStripMenuItem aboutToolStripMenuItem2;
+    private ToolStripMenuItem coolStuffToolStripMenuItem;
+    private ToolStripMenuItem clovisYoutubeChannelToolStripMenuItem;
+    private ToolStripMenuItem dOTRReduxModToolStripMenuItem;
+    private ToolStripMenuItem rOMMapDocumentationToolStripMenuItem;
+}
 }

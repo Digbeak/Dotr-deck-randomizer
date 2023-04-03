@@ -110,6 +110,9 @@
     <Compile Include="Forms\MainFormTabs\DeckEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\MainFormTabs\draftForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\TabDialogForms\CardConstantsMultiEditForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -224,10 +227,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Banlist.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Banlist.txt" />
     <Content Include="CardList.txt" />
+    <Content Include="DefaultEnemyDecks.txt" />
     <Content Include="DLLs\Equin.ApplicationFramework.BindingListView.dll" />
     <Content Include="images\deck_leader_ranks\10_ADM.png" />
     <Content Include="images\deck_leader_ranks\11_SADM.png" />

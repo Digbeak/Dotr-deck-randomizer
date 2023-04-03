@@ -42,7 +42,7 @@
 
       setupDeckEditorTab();
       SetupBannedList();
-            
+      SetupDraftingList();
     }
 
     private void setWindowText()
